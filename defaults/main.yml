@@ -1,8 +1,8 @@
 ---
 # file: defaults/main.yml
 
-git_username: "MaksimShchuplov"
-git_email: "maksim_shchuplov@epam.com"
+git_username: "User_name"
+git_email: "git@email.com"
 
 jenkinsPluginList:
   - ansible
@@ -10,8 +10,6 @@ jenkinsPluginList:
 sonarAdminLogin: admin
 sonarAdminPassword: admin
 
-gitAnsibleForked: git@git.epam.com:Maksim_Shchuplov/aas-root.git
-gitAnsibleForkedBranch: epm-aem-management
 
 nexusServerAddress: "{{ groups['nexus_servers'][0] }}"
 nexusMajorVersion: 3
@@ -54,7 +52,7 @@ jenkinsAdmin:
 buildFlows:
  - 
    projectName: "test"
-   gitRepository: 'git@git.epam.com:Maksim_Shchuplov/aem-cicdtest.git'
+   gitRepository: ''
    integrationEnv: 'dev_test'
    autoDeployOn:
     -
@@ -62,7 +60,7 @@ buildFlows:
       environment: dev,qa
 
 
-jenkinsAdminToken: "113da53cf834773672a7b67194ba335513"
+jenkinsAdminToken: ""
 
 jenkinsAdminLogin: '{{ jenkinsAdmin.name }}'
 myJenkinsAttributes:
