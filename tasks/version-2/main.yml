@@ -1,0 +1,24 @@
+---
+# file: tasks/version-2/main.yml
+
+- name: set facts
+  include: '{{ tasksVersionPath }}/set_facts.yml'
+
+- name: install all required jenkins plugins
+  jenkins_plugin:
+    name: '{{ item }}'
+    url_username: '{{ jenkinsAdmin.name }}'
+    url_password: '{{ jenkinsAdmin.password }}'
+    url: '{{ jenkinsBaseLink }}'
+    timeout: 60000
+  with_items: '{{ jenkinsPluginList }}'
+  notify:
+    - restart jenkins with token
+    - load jenkins with token
+- meta: flush_handlers
+
+- name: 'create Service_Set_Status job'
+  include: '{{ tasksBasePath }}/create-job.yml jobName=Service_Set_Status jobTemplate={{ jobVersionTemplateLink }}/jobs/Service_Set_Status'
+- name: generate all required build flows
+  include: '{{ tasksVersionPath }}/build_flow.yml buildFlowName={{ item }}'
+  with_items: '{{ buildFlows }}'

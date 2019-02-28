@@ -1,0 +1,5 @@
+{
+  "name": "rep-{{ buildFlowName.projectName|lower() }}-create",
+  "type": "groovy",
+  "content": "repository.createMavenHosted('{{ buildFlowName.projectName|lower() }}')"
+}

@@ -1,0 +1,59 @@
+- name: 'ensure that maven is downloaded'
+  get_url:
+    url: '{{ mavenLink }}'
+    dest: '{{ distrStorage }}/{{ mavenPackageName }}'
+    mode: 0644
+  become: True
+
+- name: 'ensure that {{ mavenHome }} path is present'
+  file:
+    path: '{{ mavenHome }}'
+    owner: '{{ jenkinsUser }}'
+    group: '{{ jenkinsUser }}'
+    state: directory
+  become: True
+
+- name: 'unarchive {{ mavenPackageName }}'
+  unarchive:
+    src: '{{ distrStorage }}/{{ mavenPackageName }}'
+    dest: '{{ mavenHome }}'
+    remote_src: yes
+    creates: '{{ mavenBinFile }}'
+  become: True
+
+- name: check maven configuration
+  template:
+    src: settings.xml.j2
+    dest: '{{ mavenHome }}/apache-maven-{{ mavenMajorVersion }}.{{ mavenMinorVersion }}/conf/settings.xml'
+  become: True
+
+
+- name: 'ensure that {{ mavenHome }} has a good ownerships'
+  file:
+    path: '{{ mavenHome }}'
+    owner: '{{ jenkinsUser }}'
+    group: '{{ jenkinsUser }}'
+    mode: 'u+x,g+x'
+    recurse: yes
+  become: True
+
+- name: 'ensure that {{ mavenBinFile }} is executable'
+  file:
+    path: '{{ mavenBinFile }}'
+    owner: '{{ jenkinsUser }}'
+    group: '{{ jenkinsUser }}'
+    mode: 'u+x,g+x'
+  become: True
+
+- name: ensure that maven configuration for Jenkins is correct
+  template:
+    src: hudson.tasks.Maven.xml.j2
+    dest: '{{ jenkinsHome }}/hudson.tasks.Maven.xml'
+    owner: '{{ jenkinsUser }}'
+    group: '{{ jenkinsUser }}'
+  notify:
+    - restart jenkins with token
+    - load jenkins with token
+  become: True
+- meta: flush_handlers
+

@@ -1,0 +1,20 @@
+---
+# file: tasks/set_facts.yml
+
+- name: check if a sonarqube server presents
+  fail:
+    msg: 'You have to provide one SonarQube server instance!'
+  when: "groups['sonar_servers']|length != 1"
+
+
+- name: initialize all required variables
+  set_fact:
+    tasksBasePath: '{{ role_path }}/tasks'
+    tasksVersionPath: '{{ role_path }}/tasks/version-{{ CICDVersion }}'
+    jenkinsSSHKeysPath: '{{ jenkinsHome }}/.ssh'
+    jobCheckLink: '{{ jenkinsBaseLink }}/job'
+    jobCreateLink: '{{ jenkinsBaseLink }}/createItem'
+    jobVersionTemplateLink: '{{ role_path }}/templates/version-{{ CICDVersion }}'
+    jobCommonTemplateLink: '{{ role_path }}/templates'
+    sonarBaseLink: "http://{{ sonarServerAddress }}:{{ sonarPort }}"
+

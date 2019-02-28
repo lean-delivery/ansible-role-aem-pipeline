@@ -1,0 +1,37 @@
+---
+# file: tasks/version-2/set_facts.yml
+
+- name: check if all required variables are defined
+  fail:
+    msg: '{{ item }} variable should be defined! Check Readme.rd (kb link)'
+  when: item is undefined
+  with_items:
+    - buildFlows
+
+- name: initialize all required variables
+  set_fact:
+    jenkinsPluginList:
+      - workflow-aggregator
+      - blueocean
+      - gitlab-plugin
+      - build-blocker-plugin
+      - nexus-artifact-uploader
+      - job-restrictions
+      - http_request
+      - pipeline-utility-steps
+      - sonar-quality-gates
+      - ssh-agent
+      - sonar
+      - jacoco
+    archetypeGitRepository: 'git@git.epam.com:epm-aem/maven-archetype-2.git'
+    archetypeGitBranch: master
+    envTypesList: []
+
+- name: find all existing environmentTypes on AEM instances
+  set_fact:
+    envTypesList: "{{ envTypesList }} + [ '{% if hostvars[item]['environmentType'] is defined %}{{ hostvars[item]['environmentType'] }}{% else %}{{ environment_type }}{% endif %}' ]"
+  with_items: "{{ groups['aem_instances'] }}"
+
+- name: make this list unique
+  set_fact:
+    envTypesList: '{{ envTypesList|unique }}'

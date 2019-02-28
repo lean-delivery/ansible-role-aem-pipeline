@@ -1,0 +1,87 @@
+---
+# file: defaults/main.yml
+
+git_username: "MaksimShchuplov"
+git_email: "maksim_shchuplov@epam.com"
+
+jenkinsPluginList:
+  - ansible
+
+sonarAdminLogin: admin
+sonarAdminPassword: admin
+
+gitAnsibleForked: git@git.epam.com:Maksim_Shchuplov/aas-root.git
+gitAnsibleForkedBranch: epm-aem-management
+
+nexusServerAddress: "{{ groups['nexus_servers'][0] }}"
+nexusMajorVersion: 3
+nexusPort: 8081
+
+
+sonarServerAddress: "{{ groups['sonar_servers'][0] }}"
+sonarPort: 9000
+
+# Maven Major Version
+mavenMajorVersion: 3
+# Maven Minor Version
+mavenMinorVersion: 6.0
+
+distrStorage: /tmp
+
+mavenHome: /opt/maven
+mavenLink: "http://ftp.byfly.by/pub/apache.org/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz"
+mavenPackageName: apache-maven-3.6.0-bin.tar.gz
+
+mavenVersion: '{{ mavenMajorVersion }}.{{ mavenMinorVersion }}'
+mavenBinFile: '{{ mavenHome }}/apache-maven-{{ mavenMajorVersion }}.{{ mavenMinorVersion }}/bin/mvn'
+
+jenkinsPackageList:
+  - zip
+
+jenkinsPipModules:
+  - ansible
+
+jenkinsHome: /var/lib/jenkins
+jenkinsPort: 8080
+jenkinsBaseLink: 'http://localhost:{{ jenkinsPort }}'
+
+jenkinsUser: jenkins
+
+jenkinsAdmin:
+  name: jenkins_admin
+  password: jenkins_admin
+
+buildFlows:
+ - 
+   projectName: "test"
+   gitRepository: 'git@git.epam.com:Maksim_Shchuplov/aem-cicdtest.git'
+   integrationEnv: 'dev_test'
+   autoDeployOn:
+    -
+      branch: develop
+      environment: dev,qa
+
+
+jenkinsAdminToken: "113da53cf834773672a7b67194ba335513"
+
+jenkinsAdminLogin: '{{ jenkinsAdmin.name }}'
+myJenkinsAttributes:
+  url: '{{ jenkinsBaseLink }}'
+  url_username: '{{ jenkinsAdmin.name }}'
+  url_password: '{{ jenkinsAdmin.password }}'
+
+
+
+jenkinsLoadLink: '{{ jenkinsBaseLink }}/login?from=%2F'
+jenkinsPluginListLink: '{{ jenkinsBaseLink }}/pluginManager/api/xml?depth=1&xpath=/*/*/shortName|/*/*/version&wrapper=plugins'
+jenkinsPluginInstallLink: '{{ jenkinsBaseLink }}/pluginManager/installNecessaryPlugins'
+jenkinsUpdateCLink: '{{ jenkinsBaseLink }}/updateCenter/'
+jenkinsScriptLink: '{{ jenkinsBaseLink }}/script'
+jenkinsRestartLink: '{{ jenkinsBaseLink }}/safeRestart'
+
+CICDVersion: 2
+
+environment_type: dev_test
+
+
+apache_dir: /etc/httpd

@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.11">
+  <actions>
+    <io.jenkins.blueocean.service.embedded.BlueOceanUrlAction plugin="blueocean-rest-impl@1.1.2">
+      <blueOceanUrlObject class="io.jenkins.blueocean.service.embedded.BlueOceanUrlObjectImpl">
+        <mappedUrl>blue/organizations/jenkins/deploy</mappedUrl>
+      </blueOceanUrlObject>
+    </io.jenkins.blueocean.service.embedded.BlueOceanUrlAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.buildblocker.BuildBlockerProperty plugin="build-blocker-plugin@1.7.3">
+      <useBuildBlocker>false</useBuildBlocker>
+      <blockLevel>GLOBAL</blockLevel>
+      <scanQueueFor>DISABLED</scanQueueFor>
+      <blockingJobs></blockingJobs>
+    </hudson.plugins.buildblocker.BuildBlockerProperty>
+    <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty/>
+    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.4.5">
+      <gitLabConnection></gitLabConnection>
+    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
+    <com.synopsys.arc.jenkinsci.plugins.jobrestrictions.jobs.JobRestrictionProperty plugin="job-restrictions@0.6"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.RunParameterDefinition>
+          <name>source_job</name>
+          <description></description>
+          <projectName>{{ projectName }}_BuildCounter</projectName>
+          <filter>SUCCESSFUL</filter>
+        </hudson.model.RunParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>{{ projectNameConfig }}_all</name>
+          <description>True if all AEM artifact should be deployed</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>{{ projectNameConfig }}_dispatcher</name>
+          <description>True if Apache and Dispatcher configuration should be deployed</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>{{ projectNameConfig }}_environment</name>
+          <description>Select environment for deployment</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+            {% for envItem in envTypesList if envItem != buildFlowName.integrationEnv %}
+              <string>{{ envItem }}</string>
+            {% endfor %}
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+      <triggers/>
+    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.36">
+    <script>import groovy.json.JsonSlurperClassic 
+
+@NonCPS
+def jsonParse(def json) {
+    new groovy.json.JsonSlurperClassic().parseText(json)
+}
+
+
+node {
+
+    deleteDir()
+
+    def nexusServer = &apos;{{ nexusServerAddress }}:{{ 'nexusPort' }}&apos;
+    def nexusRepository = &apos;{{ projectNameConfig }}&apos;
+
+    def ansibleGit = &apos;{{ gitAnsibleForked }}&apos;
+    def ansibleBranch = &apos;{{ gitAnsibleForkedBranch }}&apos;
+
+    def aemDeploymentList = []
+    def deploymentList = []
+
+    def aemAuthors = []
+    def aemAuthorPort = &apos;4502&apos;
+    def aemPublishers = []
+    def aemPublishPort = &apos;4503&apos;
+    def aemAuthorDispatchers = []
+    def aemPublishDispatchers = []
+
+    def gitBranch
+    def buildNumber
+    
+    stage(&apos;Preparation&apos;) {
+        jobInfo = takeJobInfo(source_job - 'nulljob/')
+        buildNumber = source_job.split(&apos;/&apos;)[-1]
+        gitBranch = jobInfo.actions[0].causes[0].upstreamUrl.split(&apos;/&apos;)[-1]
+
+        if ( {{ projectNameConfig }}_all == &apos;true&apos;) {
+            aemDeploymentList.push(&apos;all&apos;)
+        }
+        deploymentList += aemDeploymentList
+        if ( {{ projectNameConfig }}_dispatcher == &apos;true&apos; ) {
+            deploymentList.push(&apos;dispatcher&apos;)
+        }
+        git changelog: false, credentialsId: &apos;git-ansible&apos;, poll: false, branch: ansibleBranch, url: ansibleGit
+        def inventoryContent = readFile(&apos;inventory.ini&apos;).split(&apos;\n&apos;)
+        for ( int i = 0; i &lt; inventoryContent.size(); i++ ) {
+            if ( inventoryContent[i] == &apos;[aem_authors]&apos;) {
+                i++
+                while ( inventoryContent[i].length() &gt; 0 ) {
+                    if ( {{ projectNameConfig }}_environment in inventoryContent[i].split()[1].split(&apos;=&apos;) ) {
+                        aemAuthors.push(inventoryContent[i].split()[0])
+                    }
+                    i++
+                }
+            }
+            if ( inventoryContent[i] == &apos;[aem_publishers]&apos;) {
+                i++
+                while ( inventoryContent[i].length() &gt; 0 ) {
+                    if ( {{ projectNameConfig }}_environment in inventoryContent[i].split()[1].split(&apos;=&apos;) ) {
+                        aemPublishers.push(inventoryContent[i].split()[0])
+                    }
+                    i++
+                }
+            }
+            if ( inventoryContent[i] == &apos;[aem_dispatchers]&apos; ) {
+                i++
+                while ( inventoryContent[i].length() &gt; 0 ) {
+                    if ( inventoryContent[i] in aemAuthors) {
+                        aemAuthorDispatchers.push(inventoryContent[i])
+                    } else if ( inventoryContent[i] in aemPublishers) {
+                        aemPublishDispatchers.push(inventoryContent[i])
+                    } else if ( inventoryContent[i].split(&apos;render=&apos;).size() &gt; 1 ) {
+                        for ( dispatcherItem in inventoryContent[i].split(&apos;render=&apos;)[1].split(&apos;,&apos;) ) {
+                            if ( dispatcherItem in aemAuthors ) {
+                                aemAuthorDispatchers.push(inventoryContent[i].split()[0])
+                            } else if ( dispatcherItem in aemPublishers ) {
+                                aemPublishDispatchers.push(inventoryContent[i].split()[0])
+                            }
+                        }
+                    }
+                    i++
+                }
+            }
+         }
+        for ( int i = 0; i &lt; aemAuthors.size(); i++ ) {
+            aemAuthors[i] += &quot;:${aemAuthorPort}&quot;
+        }
+        for ( int i = 0; i &lt; aemPublishers.size(); i++ ) {
+            aemPublishers[i] += &quot;:${aemPublishPort}&quot;
+        }
+    }
+    
+    stage(&apos;Downloading artifacts&apos;) {
+        for (deploymentItem in deploymentList) {
+            httpRequest url: &quot;http://${nexusServer}/repository/${nexusRepository}/${gitBranch}/${nexusRepository}-${deploymentItem}/${buildNumber}/${nexusRepository}-${deploymentItem}-${buildNumber}.zip&quot;, acceptType: &apos;APPLICATION_ZIP&apos;, contentType: &apos;APPLICATION_ZIP&apos;, outputFile: &quot;${deploymentItem}.zip&quot;, responseHandle: &apos;NONE&apos;
+        }
+    }
+
+    stage(&apos;AEM Artifacts deployment&apos;) {
+      def aemInstances = aemAuthors + aemPublishers
+        for ( artifactItem in aemDeploymentList ) {
+            def parallelBranches = [:]
+            for ( aemItem in aemInstances ) {
+                def artifactToDeploy = artifactItem
+                def hostToDeploy = aemItem
+                parallelBranches[&quot;${artifactToDeploy} on ${hostToDeploy}&quot;] = {
+                    try {
+                        withCredentials([usernamePassword(credentialsId: &apos;jenkins-on-aem&apos;, passwordVariable: &apos;requestPassword&apos;, usernameVariable: &apos;requestUsername&apos;)]) {
+                            retry(5) {
+                                def postRequest = sh returnStdout: true, script: &quot;curl -u ${env.requestUsername}:${env.requestPassword} -F file=@\&quot;${artifactToDeploy}.zip\&quot; -F name=${artifactToDeploy} -F force=true -F install=true -F recursive=true http://${hostToDeploy}/crx/packmgr/service.jsp&quot;                            
+                                if ( postRequest.find(/Package installed in [0-9]+ms./) != null  ) {
+                                    println &quot;AEM Package ${artifactToDeploy} installed&quot;
+                                } else {
+                                    println postRequest
+                                    error(&quot;${artifactToDeploy} deployment error&quot;)
+                                }
+                                sleep time: 10, unit: &apos;SECONDS&apos;
+                            }
+                        }
+                    } catch (error) {
+                        println &quot;Error during ${artifactToDeploy} on ${hostToDeploy} instance&quot;
+                        throw error
+                    }
+                }
+            }
+            parallel parallelBranches
+        }
+    }
+
+    stage(&apos;Dispatcher Apache configuration deployment&apos;) {
+        if ( {{ projectNameConfig }}_dispatcher == &apos;true&apos; ) {
+            def aemDispatchers = aemAuthorDispatchers + aemPublishDispatchers
+            unzip dir: &quot;&quot;, glob: &apos;&apos;, zipFile: &quot;dispatcher.zip&quot;
+            def parallelBranches = [:]
+            for ( apacheInstance in aemDispatchers ) {
+                def hostToDeploy = apacheInstance
+                parallelBranches[&quot;Dispatcher on ${hostToDeploy}&quot;] = {
+                    try {
+                        unzip dir: &quot;${hostToDeploy}&quot;, glob: &apos;&apos;, zipFile: &quot;${hostToDeploy}.zip&quot;
+                        dir(&quot;${hostToDeploy}&quot;) {
+                            sshagent([&apos;jenkins-ssh-backup&apos;]) {
+                                sh &quot;ssh jenkins@${hostToDeploy} \&quot;mkdir -p /tmp/apache\&quot;&quot;
+                                sh &quot;scp -r * jenkins@${hostToDeploy}:///tmp/apache/&quot;
+                                sh &quot;ssh -tt jenkins@${hostToDeploy} \&quot;sudo cp -r -f /tmp/apache/* /etc/httpd/\&quot;&quot;
+                                sh &quot;ssh -tt jenkins@${hostToDeploy} \&quot;sudo /bin/chown apache.apache /etc/httpd/ -R\&quot;&quot;
+                                sh &quot;ssh -tt jenkins@${hostToDeploy} \&quot;sudo /bin/systemctl restart httpd\&quot;&quot;
+                                sh &quot;ssh jenkins@${hostToDeploy} \&quot;rm -rf /tmp/apache\&quot;&quot;
+                            }
+                        }
+                    } catch (error) {
+                        println &quot;Error during Dispatcher on ${hostToDeploy} instance&quot;
+                        println error
+                        throw error
+                    }
+                }
+            }
+            parallel parallelBranches
+        } else {
+            println &apos;Skipping..&apos;
+        }
+    }
+}
+
+def takeJobInfo(jobName) {
+    dir(&apos;temp&apos;) {
+        httpRequest acceptType: &apos;APPLICATION_JSON&apos;, outputFile: &apos;job_file.json&apos;, authentication: &apos;jenkins-on-jenkins&apos;, contentType: &apos;APPLICATION_JSON&apos;, url: &quot;http://localhost:{{ jenkinsPort }}/job/${jobName}api/json&quot;
+        def jobInfo = jsonParse(readFile(&quot;job_file.json&quot;))
+        deleteDir()
+        return jobInfo
+    }
+}</script>
+    <sandbox>false</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

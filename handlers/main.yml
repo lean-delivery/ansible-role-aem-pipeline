@@ -1,0 +1,25 @@
+# file: handlers/main.yml
+
+- name: restart jenkins with token
+  uri:
+    url: '{{ jenkinsRestartLink }}'
+    force_basic_auth: yes
+    user: '{{ jenkinsAdminLogin }}'
+    password: '{{ jenkinsAdminToken }}'
+    method: POST
+    status_code: 302
+
+- name: load jenkins with token
+  uri:
+    url: 'http://{{ inventory_hostname }}:{{ jenkinsPort }}/login?from=%2F'
+    method: GET
+    user: '{{ jenkinsAdminLogin }}'
+    password: '{{ jenkinsAdminToken }}'
+    force_basic_auth: yes
+    follow_redirects: all
+    return_content: yes
+  register: jenkinsLoad
+  until: ('Welcome to Jenkins!' in jenkinsLoad.content)
+  retries: 100
+  delay: 60
+  ignore_errors: yes

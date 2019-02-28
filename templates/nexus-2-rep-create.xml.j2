@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repository>
+    <data>
+        <format>maven2</format>
+        <providerRole>org.sonatype.nexus.proxy.repository.Repository</providerRole>
+        <exposed>true</exposed>
+        <browseable>true</browseable>
+        <indexable>true</indexable>
+        <id>{{ buildFlowName.projectName|lower() }}</id>
+        <name>{{ buildFlowName.projectName }}</name>
+        <contentResourceURI>http://{{ nexusServerAddress }}:{{ nexusPort }}/content/repositories/{{ buildFlowName.projectName|lower() }}</contentResourceURI>
+        <repoType>hosted</repoType>
+        <repoPolicy>RELEASE</repoPolicy>
+        <provider>maven2</provider>
+    </data>
+</repository>

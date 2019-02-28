@@ -1,0 +1,34 @@
+---
+# file: tasks/common.yml
+
+- name: 'Check if {{ jobName }} job presents'
+  uri:
+    url: '{{ jobCheckLink }}/{{ jobName }}'
+    force_basic_auth: yes
+    user: '{{ jenkinsAdminLogin }}'
+    password: '{{ jenkinsAdminToken }}'
+    status_code: 200, 404
+  register: jobCheck
+
+- name: 'Create {{ jobName }} job if doesnt exist'
+  uri:
+    url: '{{ jobCreateLink }}?name={{ jobName }}'
+    method: POST
+    headers:
+      Content-Type: "text/xml"
+    force_basic_auth: yes
+    user: '{{ jenkinsAdminLogin }}'
+    password: '{{ jenkinsAdminToken }}'
+    body: "{{ lookup('template', '{{ jobTemplate }}.xml.j2') }}"
+  changed_when: jobCheck.status == 404
+  when: jobCheck.status == 404
+
+- name: 'Check if {{ jobName }} configuration is OK'
+  uri:
+    url: '{{ jobCheckLink }}/{{ jobName }}/config.xml'
+    method: POST
+    force_basic_auth: yes
+    user: '{{ jenkinsAdminLogin }}'
+    password: '{{ jenkinsAdminToken }}'
+    body: "{{ lookup('template', '{{ jobTemplate }}.xml.j2') }}"
+  when: jobCheck.status != 404

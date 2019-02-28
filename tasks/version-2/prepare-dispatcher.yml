@@ -1,0 +1,68 @@
+---
+# file: tasks/version-2/prepare-dispatcher.yml
+
+- name: init variables
+  set_fact:
+    dispArray: []
+    aemAuthorArray: []
+    aemPublishArray: []
+    dispAuthorArray: []
+    dispPublishArray: []
+    dispRenderArray: []
+    tempTemplateLink: '{{ jenkinsHome }}/workspace/{{ projectName }}_Generate/{{ projectNameConfig }}/{{ projectNameConfig }}.dispatcher/src/environment'
+
+- name: 'find all AEM Authoring instances in {{ envType }}'
+  set_fact:
+    aemAuthorArray: '{{ aemAuthorArray + [ childAemItem ] }} '
+  when: "environment_type == envType"
+  with_items: "{{ groups['aem_authors'] }}"
+  loop_control:
+    loop_var: childAemItem
+- name: 'find all AEM Publishing instances in {{ envType }}'
+  set_fact:
+    aemPublishArray: '{{ aemPublishArray + [ childAemItem ] }} '
+  when: "environment_type == envType"
+  with_items: "{{ groups['aem_publishers'] }}"
+  loop_control:
+    loop_var: childAemItem
+
+- name: 'find all authoring dispatchers in {{ envType }} w\o render var'
+  set_fact:
+    dispAuthorArray: '{{ dispAuthorArray + [ dispItem ] }}'
+    envAuthorDispatchers: '{{ envAuthorDispatchers + [ dispItem ] }}'
+  when: "dispItem in aemAuthorArray and hostvars[dispItem]['render'] is undefined"
+  with_items: "{{ groups['aem_dispatchers'] }}"
+  loop_control:
+    loop_var: dispItem
+- name: 'find all publishing dispatchers in {{ envType }} w\o render var'
+  set_fact:
+    dispPublishArray: '{{ dispPublishArray + [ dispItem ] }}'
+    envPublishDispatchers: '{{ envPublishDispatchers + [ dispItem ] }}'
+  when: "dispItem in aemPublishArray and hostvars[dispItem]['render'] is undefined"
+  with_items: "{{ groups['aem_dispatchers'] }}"
+  loop_control:
+    loop_var: dispItem
+- name: 'find all dispatcher instances in {{ envType }} (with render var)'
+  set_fact:
+    dispRenderArray: '{{ dispRenderArray + [ dispItem ] }}'
+  with_items: "{{ groups['aem_dispatchers'] }}"
+  when: "hostvars[dispItem]['render'] is defined"
+  loop_control:
+    loop_var: dispItem
+- name: find dispatchers with defined render variable which are connected with this AEM instance
+  include: '{{ tasksVersionPath }}/subtasks/find-render.yml findRender={{ dispItem }}'
+  with_items: "{{ dispRenderArray }}"
+  loop_control:
+    loop_var: dispItem
+
+- name: 'ensure that properties file for dispatchers on {{ envType }} exists'
+  template:
+    src: "{{ jobVersionTemplateLink }}/dispatcher.properties.j2"
+    dest: '{{ tempTemplateLink }}/{{ dispItem }}.properties'
+    owner: '{{ jenkinsUser }}'
+  with_items:
+    - '{{ dispAuthorArray }}'
+    - '{{ dispPublishArray }}'
+  loop_control:
+    loop_var: dispItem
+  become: True

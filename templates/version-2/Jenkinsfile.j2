@@ -1,0 +1,145 @@
+node {
+
+	def nexusServer = '{{ nexusServerAddress }}:{{ nexusPort }}'
+	def nexusRepository = '{{ projectNameConfig }}'
+
+	def mvnHome = tool name: 'maven-{{ mavenVersion }}', type: 'maven'
+
+  	def buildNumber
+	def projectName = '{{ projectName }}'
+	def projectNameConfig = '{{ projectNameConfig }}'
+	def gitBranch = env.BRANCH_NAME
+	def counterJobName = '{{ projectName }}_BuildCounter'
+
+    def autoDeployOn = [
+    	{% for autoDeployItem in buildFlowName.autoDeployOn %}
+    	[ branch: '{{ autoDeployItem.branch }}', environment: '{{ autoDeployItem.environment }}' ]{% if not loop.last %},{% endif %}
+    	{% endfor %}
+    ]
+
+    def aemArtifactList = [ 
+    	[ name: 'all', path: "${projectNameConfig}.all/target", file: "${projectNameConfig}-all-2.2-SNAPSHOT.zip" ]
+    ]
+
+    def dispatcherTargetPath = 'target/classes'
+    def dispatcherList = [
+    	{% for dispItem in envAuthorDispatchers %}
+    	[ type: 'author', name: '{{ dispItem }}' ],
+  		{% endfor %}
+  		{% for dispItem in envPublishDispatchers %}
+    	[ type: 'publish', name: '{{ dispItem }}' ]{% if not loop.last %},{% endif %}
+    	{% endfor %}
+    ]
+
+	dir(projectName) {
+		
+		deleteDir()
+
+		stage('Build preparation') {
+			def counterJob = build job: counterJobName , parameters: [string(name: 'PARENT_BRANCH', value: "${projectName}_BuildFlow/${gitBranch}")]
+			buildNumber = counterJob.getNumber().toString()
+		}
+
+		stage('Git checkout') {
+			try {
+				git branch: gitBranch, credentialsId: 'git-credentials', url: '{{ gitRepository }}'
+			} catch (error) {
+				build job: 'Service_Set_Status' , parameters: [string(name: 'JOB_NAME', value: "${counterJobName}"), string(name: 'JOB_NUMBER', value: "${buildNumber}")]
+				throw error
+			}
+		}
+
+		stage('Build AEM artifacts') {
+			try {
+				withCredentials([usernamePassword(credentialsId: 'jenkins-on-aem', passwordVariable: 'requestPassword', usernameVariable: 'requestUsername')]) {
+					sh "${mvnHome}/bin/mvn clean install -P deploy-all -Daem.host={{ ciAEMAuthor }} -Daem.port={% if hostvars[ciAEMAuthor]['aemInstancePort'] is defined %}{{ hostvars[ciAEMAuthor]['aemInstancePort'] }}{% else %}{{ aem_instance_port }}{% endif %} -Dsling.user=${env.requestUsername} -Dsling.password=${env.requestPassword}"
+				}
+			} catch (error) {
+				build job: 'Service_Set_Status' , parameters: [string(name: 'JOB_NAME', value: "${counterJobName}"), string(name: 'JOB_NUMBER', value: "${buildNumber}")]
+				throw error
+			}
+		}
+
+		stage("Build Dispatcher artifacts") {
+			try {
+				dir('{{ projectNameConfig }}.dispatcher') {
+					def workspace = pwd().toString()
+					for (dispItem in dispatcherList) {
+						sh "${mvnHome}/bin/mvn clean package -Ddispatcher.host=${dispItem.name} -Ddispatcher.role=${dispItem.type}"	
+						dir(dispatcherTargetPath) {
+							sh "zip ${workspace}/${dispItem.name}.zip ./* -r"
+						}
+					}
+					for (dispItem in dispatcherList) {
+						sh "zip ${projectNameConfig}-dispatcher.zip ${dispItem.name}.zip"
+					}
+				}
+			} catch (error) {
+				build job: 'Service_Set_Status' , parameters: [string(name: 'JOB_NAME', value: "${counterJobName}"), string(name: 'JOB_NUMBER', value: "${buildNumber}")]
+				throw error
+			}
+		}
+
+		stage("SonarQube + JaCoCO analyze") {
+			try {
+				step([$class: 'JacocoPublisher', execPattern:'**/**.exec', classPattern: '**/classes', sourcePattern: '**/src/main/java', exclusionPattern: ''])
+				withSonarQubeEnv('{{ sonarServerAddress }}') {
+					sh "${mvnHome}/bin/mvn sonar:sonar -Dsonar.projectVersion=${buildNumber}_${gitBranch} -Dsonar.projectName=${projectName}-${gitBranch}-branch" 
+				}
+				def sonarGateCheck
+				timeout(time: 20, unit: 'MINUTES') {
+					sonarGateCheck = waitForQualityGate()
+				}
+				if ( sonarGateCheck.status != 'OK' ) {
+					error 'Analyze: SonarQube (Quality Gate check failed)'
+				}
+			} catch (error) {
+				build job: 'Service_Set_Status' , parameters: [string(name: 'JOB_NAME', value: "${counterJobName}"), string(name: 'JOB_NUMBER', value: "${buildNumber}")]
+				throw error
+			}
+		}
+		
+		stage("Upload AEM artifacts to Nexus") {
+			try {
+				for ( artifact in aemArtifactList ) {
+					dir(artifact.path) {
+						def artifactName = "${projectNameConfig}-${artifact.name}"
+						nexusArtifactUploader artifacts: [[artifactId: artifactName, classifier: '', file: artifact.file, type: 'zip']], credentialsId: 'jenkins-on-nexus', groupId: gitBranch, nexusUrl: nexusServer, nexusVersion: 'nexus3', protocol: 'http', repository: nexusRepository, version: buildNumber
+						sleep 1
+					}
+				}
+			} catch (error) {
+				build job: 'Service_Set_Status' , parameters: [string(name: 'JOB_NAME', value: "${counterJobName}"), string(name: 'JOB_NUMBER', value: "${buildNumber}")]
+				throw error
+			}
+		}
+
+		stage("Upload Dispatchers artifacts to Nexus") {
+			try {
+				dir('{{ projectNameConfig }}.dispatcher') {
+					nexusArtifactUploader artifacts: [[artifactId: "${projectNameConfig}-dispatcher", classifier: '', file: "${projectNameConfig}-dispatcher.zip", type: 'zip']], credentialsId: 'jenkins-on-nexus', groupId: gitBranch, nexusUrl: nexusServer, nexusVersion: 'nexus3', protocol: 'http', repository: nexusRepository, version: buildNumber	
+				}
+			} catch (error) {
+				build job: 'Service_Set_Status' , parameters: [string(name: 'JOB_NAME', value: "${counterJobName}"), string(name: 'JOB_NUMBER', value: "${buildNumber}")]
+				throw error
+			}
+		}
+
+		for ( autoDeploy in autoDeployOn ) {
+			if ( gitBranch == autoDeploy.branch ) {
+				def envList = autoDeploy.environment.split(',')
+				for (int i = 0; i < envList.size(); i++) {
+					def loopItem = envList[i]
+					stage("Automatic deployment on ${loopItem}") {
+						try {
+							build job: '{{ projectName }}_Deploy' , parameters: [string(name: '{{ projectName }}_BuildCounter', value: "nulljob/${counterJobName}/${buildNumber}"), string(name: '{{ projectNameConfig }}_dispatcher', value: 'true'), string(name: '{{ projectNameConfig }}_environment', value: envList[i])]
+						} catch (error) {
+							build job: 'Service_Set_Status' , parameters: [string(name: 'JOB_NAME', value: "${counterJobName}"), string(name: 'JOB_NUMBER', value: "${buildNumber}")]
+							throw error
+						}
+					}
+				}
+			}
+		}
+	}
+}

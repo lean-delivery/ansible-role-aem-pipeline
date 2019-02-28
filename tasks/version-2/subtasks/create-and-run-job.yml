@@ -1,0 +1,37 @@
+---
+# file: tasks/version-2/create-git-branch.yml
+
+- name: 'create {{ generateJob }} job'
+  include: '{{ tasksBasePath }}/create-job.yml jobName={{ generateJob }}'
+
+- name: 'run {{ generateJob }} job'
+  uri:
+    url: '{{ jobCheckLink }}/{{ generateJob }}/build'
+    method: POST
+    force_basic_auth: yes
+    follow_redirects: all
+    user: '{{ jenkinsAdminLogin }}'
+    password: '{{ jenkinsAdminToken }}'
+    status_code: 201
+
+- name: 'wait until {{ generateJob }} job in progress'
+  uri:
+    url: '{{ jobCheckLink }}/{{ generateJob }}/api/json'
+    force_basic_auth: yes
+    user: '{{ jenkinsAdminLogin }}'
+    password: '{{ jenkinsAdminToken }}'
+    return_content: yes
+  register: jenkinsJobStatus
+  until: jenkinsJobStatus.json.lastSuccessfulBuild.number is defined
+  retries: 100
+  delay: 2
+  ignore_errors: yes
+
+- name: check {{ generateJob }} job result'
+  uri:
+    url: '{{ jobCheckLink }}/{{ generateJob }}/api/json'
+    force_basic_auth: yes
+    user: '{{ jenkinsAdminLogin }}'
+    password: '{{ jenkinsAdminToken }}'
+    return_content: yes
+  register: jenkinsJobStatus

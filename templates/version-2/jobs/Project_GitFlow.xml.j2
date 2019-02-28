@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.11">
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.buildblocker.BuildBlockerProperty plugin="build-blocker-plugin@1.7.3">
+      <useBuildBlocker>false</useBuildBlocker>
+      <blockLevel>GLOBAL</blockLevel>
+      <scanQueueFor>DISABLED</scanQueueFor>
+      <blockingJobs></blockingJobs>
+    </hudson.plugins.buildblocker.BuildBlockerProperty>
+    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.4.5">
+      <gitLabConnection></gitLabConnection>
+    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
+    <com.synopsys.arc.jenkinsci.plugins.jobrestrictions.jobs.JobRestrictionProperty plugin="job-restrictions@0.6"/>
+    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+      <triggers/>
+    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.35">
+    <script>node {
+    def projectGit = &apos;{{ gitRepository }}&apos;
+    def gitBranch = &apos;{{ gitBranchItem }}&apos;
+
+    sshagent([&apos;git-credentials&apos;]) {
+        dir(&apos;{{ jenkinsHome }}/workspace/{{ projectName }}_Generate/{{ projectNameConfig }}&apos;) {
+
+          sh &quot; git config user.name {{ git_username }}&quot;
+          sh &quot; git config user.email {{ git_email }}&quot;
+          {% if gitBranchItem == 'master' %}
+          sh &quot;git add --all .&quot;
+          sh &quot;git commit -m &apos;Initial commit&apos;&quot;
+          {% else %}
+          sh &quot;git checkout -b ${gitBranch}&quot;
+          {% endif %}
+          sh &quot;git push --set-upstream origin ${gitBranch}&quot;
+        }
+    }
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

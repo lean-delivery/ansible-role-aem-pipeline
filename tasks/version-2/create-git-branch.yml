@@ -1,0 +1,8 @@
+---
+# file: tasks/version-2/create-git-branch.yml
+
+- name: 'create and run {{ projectName }}_Generate_{{ gitBranchItem }} job'
+  include: '{{ tasksVersionPath }}/subtasks/create-and-run-job.yml generateJob={{ projectName }}_Generate_{{ gitBranchItem }} jobTemplate={{ jobVersionTemplateLink }}/jobs/Project_GitFlow'
+
+- name: 'remove {{ projectName }}_Generate_{{ gitBranchItem }} job'
+  include: '{{ tasksVersionPath }}/subtasks/remove-job.yml jobToRemove={{ projectName }}_Generate_{{ gitBranchItem }}'

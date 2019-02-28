@@ -1,0 +1,13 @@
+# httpd.conf
+dispatcher.server.root={{ 'apache_dir' }}
+dispatcher.apache.user={{ 'web_server_user' }}
+dispatcher.apache.group={{ 'web_server_group' }}
+dispatcher.apache.server.name={{ dispItem }}
+dispatcher.apache.document.root={{ 'dispatcher_root' }}
+
+# common dispatcher configs
+dispatcher.document.root={{ 'dispatcher_root' }}
+dispatcher.render.host={% if hostvars[dispItem]['render'] is defined %}{{ hostvars[dispItem]['render'].split(',')[0] }}{% else %}{{ dispItem }}{% endif %}
+
+# publish dispatcher configs
+dispatcher.render.port={% if hostvars[dispItem]['render'] is defined %}{{ hostvars[hostvars[dispItem]['render'].split(',')[0]]['aem_instance_port'] }}{% else %}{{ aem_instance_port }}{% endif %}

@@ -1,0 +1,14 @@
+---
+# file: tasks/main.yml
+
+- name: set facts
+  include: set_facts.yml
+
+- name: install maven
+  include: maven-install.yml
+
+- name: make common tasks
+  include: common.yml
+
+- name: include specified CICD version
+  include: '{{ tasksVersionPath }}/main.yml'

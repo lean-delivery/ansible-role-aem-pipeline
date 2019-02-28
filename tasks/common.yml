@@ -1,0 +1,41 @@
+---
+# file: tasks/common.yml
+
+- name: install all required packages
+  package:
+    name: '{{ item }}'
+  with_items: '{{ jenkinsPackageList }}'
+  become: True
+
+- name: install all required python packages via pip
+  pip:
+    name: '{{ item }}'
+  with_items: '{{ jenkinsPipModules }}'
+  become: True
+ 
+- name: install all required jenkins plugins
+
+  jenkins_plugin:
+    url_username: '{{ jenkinsAdmin.name }}'
+    url_password: '{{ jenkinsAdmin.password }}'
+    url: '{{ jenkinsBaseLink }}'
+    name: '{{ item }}'
+    timeout: 60000
+  with_items: '{{ jenkinsPluginList }}'
+  notify:
+    - restart jenkins with token
+    - load jenkins with token
+- meta: flush_handlers
+
+- name: ensure that SonarQube hook for jenkins instances is present
+  uri:
+    url: "{{ sonarBaseLink }}/api/webhooks/create"
+    method: POST
+    user: "{{ sonarAdminLogin }}"
+    password: "{{ sonarAdminPassword }}"
+    force_basic_auth: yes
+    follow_redirects: all
+    body: "name={{ inventory_hostname }}&url={{ jenkinsBaseLink }}/sonarqube-webhook/"
+    headers:
+      Content-Type: 'application/x-www-form-urlencoded'
+    status_code: 200

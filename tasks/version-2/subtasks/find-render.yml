@@ -1,0 +1,20 @@
+---
+# file: tasks/version-2/subtasks/find-render.yml
+
+- name: 'find all authoring dispatchers in {{ envType }} with render var'
+  set_fact:
+    dispAuthorArray: "{{ dispAuthorArray + [ findRender ] }}"
+    envAuthorDispatchers: "{{ envAuthorDispatchers + [ findRender ] }}"
+  when: renderItem in aemAuthorArray
+  with_items: "{{ hostvars[findRender]['render'].split(',') }}"
+  loop_control:
+    loop_var: renderItem
+
+- name: 'find all publishing dispatchers in {{ envType }} with render var'
+  set_fact:
+    dispPublishArray: "{{ dispPublishArray + [ findRender ] }}"
+    envPublishDispatchers: "{{ envPublishDispatchers + [ findRender ] }}"
+  when: renderItem in aemPublishArray
+  with_items: "{{ hostvars[findRender]['render'].split(',') }}"
+  loop_control:
+    loop_var: renderItem
