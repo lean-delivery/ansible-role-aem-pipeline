@@ -27,15 +27,16 @@
     - load jenkins with token
 - meta: flush_handlers
 
-- name: ensure that SonarQube hook for jenkins instances is present
-  uri:
-    url: "{{ sonarBaseLink }}/api/webhooks/create"
-    method: POST
-    user: "{{ sonarAdminLogin }}"
-    password: "{{ sonarAdminPassword }}"
-    force_basic_auth: yes
-    follow_redirects: all
-    body: "name={{ inventory_hostname }}&url={{ jenkinsBaseLink }}/sonarqube-webhook/"
-    headers:
-      Content-Type: 'application/x-www-form-urlencoded'
-    status_code: 200
+
+#- name: ensure that SonarQube hook for jenkins instances is present
+#  uri:
+#    url: "{{ sonarBaseLink }}/api/webhooks/create"
+#    method: POST
+#    user: "{{ sonarAdminLogin }}"
+#    password: "{{ sonarAdminPassword }}"
+#    force_basic_auth: yes
+#    follow_redirects: all
+#    body: "name={{ inventory_hostname }}&url={{ jenkinsBaseLink }}/sonarqube-webhook/"
+#    headers:
+#      Content-Type: 'application/x-www-form-urlencoded'
+#    status_code: 200

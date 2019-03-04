@@ -99,7 +99,7 @@ node {
 			}
 		}
 		
-		stage("Upload AEM artifacts to Nexus") {
+		stage("Upload AEM artifacts to storage") {
 			try {
 				for ( artifact in aemArtifactList ) {
 					dir(artifact.path) {
@@ -114,7 +114,7 @@ node {
 			}
 		}
 
-		stage("Upload Dispatchers artifacts to Nexus") {
+		stage("Upload Dispatchers artifacts to storage") {
 			try {
 				dir('{{ projectNameConfig }}.dispatcher') {
 					nexusArtifactUploader artifacts: [[artifactId: "${projectNameConfig}-dispatcher", classifier: '', file: "${projectNameConfig}-dispatcher.zip", type: 'zip']], credentialsId: 'jenkins-on-nexus', groupId: gitBranch, nexusUrl: nexusServer, nexusVersion: 'nexus3', protocol: 'http', repository: nexusRepository, version: buildNumber	

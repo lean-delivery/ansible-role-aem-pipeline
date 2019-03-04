@@ -10,5 +10,8 @@
 - name: make common tasks
   include: common.yml
 
+- name: make sonar tasks
+  include: sonar-install.yml
+
 - name: include specified CICD version
   include: '{{ tasksVersionPath }}/main.yml'
