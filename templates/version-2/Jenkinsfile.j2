@@ -1,7 +1,5 @@
 node {
 
-	def nexusServer = '{{ nexusServerAddress }}:{{ nexusPort }}'
-	def nexusRepository = '{{ projectNameConfig }}'
 
 	def mvnHome = tool name: 'maven-{{ mavenVersion }}', type: 'maven'
 
