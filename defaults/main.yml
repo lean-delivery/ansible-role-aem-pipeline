@@ -11,6 +11,9 @@ jenkinsFile: /opt/jenkins.done
 sonarAdminLogin: admin
 sonarAdminPassword: admin
 
+archetypeGitRepository: 'git@git.epam.com:epm-aem/maven-archetype-2.git'
+archetypeGitBranch: master
+
 
 nexusServerAddress: "{{ groups['nexus_servers'][0] }}"
 nexusMajorVersion: 3
@@ -57,7 +60,7 @@ buildFlows:
    integrationEnv: 'dev_test'
    autoDeployOn:
     -
-      branch: develop
+      branch: test
       environment: dev,qa
 
 

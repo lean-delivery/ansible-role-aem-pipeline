@@ -100,29 +100,11 @@ node {
 		}
 		
 		stage("Upload AEM artifacts to storage") {
-			try {
-				for ( artifact in aemArtifactList ) {
-					dir(artifact.path) {
-						def artifactName = "${projectNameConfig}-${artifact.name}"
-						nexusArtifactUploader artifacts: [[artifactId: artifactName, classifier: '', file: artifact.file, type: 'zip']], credentialsId: 'jenkins-on-nexus', groupId: gitBranch, nexusUrl: nexusServer, nexusVersion: 'nexus3', protocol: 'http', repository: nexusRepository, version: buildNumber
-						sleep 1
-					}
-				}
-			} catch (error) {
-				build job: 'Service_Set_Status' , parameters: [string(name: 'JOB_NAME', value: "${counterJobName}"), string(name: 'JOB_NUMBER', value: "${buildNumber}")]
-				throw error
-			}
+                       println "Upload AEM artifacts to storage"
 		}
 
 		stage("Upload Dispatchers artifacts to storage") {
-			try {
-				dir('{{ projectNameConfig }}.dispatcher') {
-					nexusArtifactUploader artifacts: [[artifactId: "${projectNameConfig}-dispatcher", classifier: '', file: "${projectNameConfig}-dispatcher.zip", type: 'zip']], credentialsId: 'jenkins-on-nexus', groupId: gitBranch, nexusUrl: nexusServer, nexusVersion: 'nexus3', protocol: 'http', repository: nexusRepository, version: buildNumber	
-				}
-			} catch (error) {
-				build job: 'Service_Set_Status' , parameters: [string(name: 'JOB_NAME', value: "${counterJobName}"), string(name: 'JOB_NUMBER', value: "${buildNumber}")]
-				throw error
-			}
+                       println "Upload Dispatchers artifacts to storage"
 		}
 
 		for ( autoDeploy in autoDeployOn ) {

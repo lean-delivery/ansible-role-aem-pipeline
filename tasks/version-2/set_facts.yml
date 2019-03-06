@@ -23,8 +23,6 @@
       - ssh-agent
       - sonar
       - jacoco
-    archetypeGitRepository: 'git@git.epam.com:epm-aem/maven-archetype-2.git'
-    archetypeGitBranch: master
     envTypesList: []
 
 - name: find all existing environmentTypes on AEM instances
