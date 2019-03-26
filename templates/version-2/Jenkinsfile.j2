@@ -1,5 +1,7 @@
 node {
 
+	def minioserver = '{{ minio_server_address }}:{{ hostvars[minio_server_address]['minio_port'] }}'
+	def bucketname = '{{ projectNameConfig }}'
 
 	def mvnHome = tool name: 'maven-{{ mavenVersion }}', type: 'maven'
 
@@ -97,13 +99,43 @@ node {
 			}
 		}
 		
-		stage("Upload AEM artifacts to storage") {
-                       println "Upload AEM artifacts to storage"
+		stage("Upload AEM artifacts to Nexus") {
+			try {
+				for ( artifact in aemArtifactList ) {
+					dir(artifact.path) {
+						def artifactName = "${projectNameConfig}-${artifact.name}"
+
+						                    withAWS(endpointUrl: minioserver , credentials:'miniocreds') {
+
+						                              s3Upload(pathStyleAccessEnabled: true, file: artifact.file , bucket: bucketname, path:"${gitBranch}/${buildNumber}/${artifactName}/${artifact.file}")
+                                                 }
+						sleep 1
+					}
+				}
+			} catch (error) {
+				build job: 'Service_Set_Status' , parameters: [string(name: 'JOB_NAME', value: "${counterJobName}"), string(name: 'JOB_NUMBER', value: "${buildNumber}")]
+				throw error
+			}
 		}
 
-		stage("Upload Dispatchers artifacts to storage") {
-                       println "Upload Dispatchers artifacts to storage"
+
+		stage("Upload Dispatchers artifacts to Nexus") {
+			try {
+				dir("${projectNameConfig}.dispatcher") {
+
+
+										                    withAWS(endpointUrl: minioserver , credentials:'miniocreds') {
+
+						                              s3Upload(pathStyleAccessEnabled: true, file: "${projectNameConfig}-dispatcher.zip" , bucket: bucketname, path:"${gitBranch}/${buildNumber}/${projectNameConfig}-dispatcher/${projectNameConfig}-dispatcher.zip")
+                                                 }
+							}
+			} catch (error) {
+				build job: 'Service_Set_Status' , parameters: [string(name: 'JOB_NAME', value: "${counterJobName}"), string(name: 'JOB_NUMBER', value: "${buildNumber}")]
+				throw error
+			}
 		}
+
+
 
 		for ( autoDeploy in autoDeployOn ) {
 			if ( gitBranch == autoDeploy.branch ) {
