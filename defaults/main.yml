@@ -87,3 +87,5 @@ environment_type: dev_test
 
 
 apache_dir: /etc/httpd
+
+aem_instance_port: 4502
