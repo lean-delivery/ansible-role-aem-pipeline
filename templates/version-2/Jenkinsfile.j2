@@ -105,7 +105,7 @@ node {
 					dir(artifact.path) {
 						def artifactName = "${projectNameConfig}-${artifact.name}"
 
-						                    withAWS(endpointUrl: minioserver , credentials:'miniocreds') {
+						                    withAWS(endpointUrl: minioserver , credentials:'MINIO_CREDENTIALS') {
 
 						                              s3Upload(pathStyleAccessEnabled: true, file: artifact.file , bucket: bucketname, path:"${gitBranch}/${buildNumber}/${artifactName}/${artifact.file}")
                                                  }
@@ -124,7 +124,7 @@ node {
 				dir("${projectNameConfig}.dispatcher") {
 
 
-										                    withAWS(endpointUrl: minioserver , credentials:'miniocreds') {
+										                    withAWS(endpointUrl: minioserver , credentials:'MINIO_CREDENTIALS') {
 
 						                              s3Upload(pathStyleAccessEnabled: true, file: "${projectNameConfig}-dispatcher.zip" , bucket: bucketname, path:"${gitBranch}/${buildNumber}/${projectNameConfig}-dispatcher/${projectNameConfig}-dispatcher.zip")
                                                  }
