@@ -1,6 +1,6 @@
 node {
 
-	def minioserver = '{{ minio_server_address }}:{{ hostvars[minio_server_address]['minio_port'] }}'
+	def minioserver = '{{ minio_server_address }}:{{ minio_port }}'
 	def bucketname = '{{ projectNameConfig }}'
 
 	def mvnHome = tool name: 'maven-{{ mavenVersion }}', type: 'maven'
