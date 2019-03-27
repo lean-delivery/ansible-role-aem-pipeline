@@ -6,9 +6,9 @@
         <exposed>true</exposed>
         <browseable>true</browseable>
         <indexable>true</indexable>
-        <id>{{ buildFlowName.projectName|lower() }}</id>
-        <name>{{ buildFlowName.projectName }}</name>
-        <contentResourceURI>http://{{ nexusServerAddress }}:{{ nexusPort }}/content/repositories/{{ buildFlowName.projectName|lower() }}</contentResourceURI>
+        <id>{{ buildFlowName.project_name|lower() }}</id>
+        <name>{{ buildFlowName.project_name }}</name>
+        <contentResourceURI>http://{{ nexusServerAddress }}:{{ nexusPort }}/content/repositories/{{ buildFlowName.project_name|lower() }}</contentResourceURI>
         <repoType>hosted</repoType>
         <repoPolicy>RELEASE</repoPolicy>
         <provider>maven2</provider>

@@ -9,12 +9,12 @@
 
 - name: initialize all required variables
   set_fact:
-    tasksBasePath: '{{ role_path }}/tasks'
-    tasksVersionPath: '{{ role_path }}/tasks/version-{{ CICDVersion }}'
-    jenkinsSSHKeysPath: '{{ jenkinsHome }}/.ssh'
-    jobCheckLink: '{{ jenkinsBaseLink }}/job'
-    jobCreateLink: '{{ jenkinsBaseLink }}/createItem'
-    jobVersionTemplateLink: '{{ role_path }}/templates/version-{{ CICDVersion }}'
+    tasks_base_path: '{{ role_path }}/tasks'
+    tasks_version_path: '{{ role_path }}/tasks/version-{{ CICDVersion }}'
+    jenkinsSSHKeysPath: '{{ jenkins_home }}/.ssh'
+    job_check_link: '{{ jenkins_base_link }}/job'
+    job_create_link: '{{ jenkins_base_link }}/createItem'
+    job_version_template_link: '{{ role_path }}/templates/version-{{ CICDVersion }}'
     jobCommonTemplateLink: '{{ role_path }}/templates'
-    sonarBaseLink: "http://{{ sonarServerAddress }}:{{ sonarPort }}"
+    sonar_base_link: "http://{{ sonar_server_address }}:{{ sonarPort }}"
 

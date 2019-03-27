@@ -1,56 +1,56 @@
 - name: 'ensure that maven is downloaded'
   get_url:
-    url: '{{ mavenLink }}'
-    dest: '{{ distrStorage }}/{{ mavenPackageName }}'
+    url: '{{ maven_link }}'
+    dest: '{{ distr_storage }}/{{ maven_package_name }}'
     mode: 0644
   become: True
 
-- name: 'ensure that {{ mavenHome }} path is present'
+- name: 'ensure that {{ maven_home }} path is present'
   file:
-    path: '{{ mavenHome }}'
-    owner: '{{ jenkinsUser }}'
-    group: '{{ jenkinsUser }}'
+    path: '{{ maven_home }}'
+    owner: '{{ jenkins_user }}'
+    group: '{{ jenkins_user }}'
     state: directory
   become: True
 
-- name: 'unarchive {{ mavenPackageName }}'
+- name: 'unarchive {{ maven_package_name }}'
   unarchive:
-    src: '{{ distrStorage }}/{{ mavenPackageName }}'
-    dest: '{{ mavenHome }}'
-    remote_src: yes
-    creates: '{{ mavenBinFile }}'
+    src: '{{ distr_storage }}/{{ maven_package_name }}'
+    dest: '{{ maven_home }}'
+    remote_src: True
+    creates: '{{ maven_bin_file }}'
   become: True
 
 - name: check maven configuration
   template:
     src: settings.xml.j2
-    dest: '{{ mavenHome }}/apache-maven-{{ mavenMajorVersion }}.{{ mavenMinorVersion }}/conf/settings.xml'
+    dest: '{{ maven_home }}/apache-maven-{{ maven_major_version }}.{{ maven_minor_version }}/conf/settings.xml'
   become: True
 
 
-- name: 'ensure that {{ mavenHome }} has a good ownerships'
+- name: 'ensure that {{ maven_home }} has a good ownerships'
   file:
-    path: '{{ mavenHome }}'
-    owner: '{{ jenkinsUser }}'
-    group: '{{ jenkinsUser }}'
+    path: '{{ maven_home }}'
+    owner: '{{ jenkins_user }}'
+    group: '{{ jenkins_user }}'
     mode: 'u+x,g+x'
-    recurse: yes
+    recurse: True
   become: True
 
-- name: 'ensure that {{ mavenBinFile }} is executable'
+- name: 'ensure that {{ maven_bin_file }} is executable'
   file:
-    path: '{{ mavenBinFile }}'
-    owner: '{{ jenkinsUser }}'
-    group: '{{ jenkinsUser }}'
+    path: '{{ maven_bin_file }}'
+    owner: '{{ jenkins_user }}'
+    group: '{{ jenkins_user }}'
     mode: 'u+x,g+x'
   become: True
 
 - name: ensure that maven configuration for Jenkins is correct
   template:
     src: hudson.tasks.Maven.xml.j2
-    dest: '{{ jenkinsHome }}/hudson.tasks.Maven.xml'
-    owner: '{{ jenkinsUser }}'
-    group: '{{ jenkinsUser }}'
+    dest: '{{ jenkins_home }}/hudson.tasks.Maven.xml'
+    owner: '{{ jenkins_user }}'
+    group: '{{ jenkins_user }}'
   notify:
     - restart jenkins with token
     - load jenkins with token

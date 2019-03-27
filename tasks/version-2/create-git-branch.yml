@@ -1,8 +1,9 @@
 ---
 # file: tasks/version-2/create-git-branch.yml
 
-- name: 'create and run {{ projectName }}_Generate_{{ gitBranchItem }} job'
-  include: '{{ tasksVersionPath }}/subtasks/create-and-run-job.yml generateJob={{ projectName }}_Generate_{{ gitBranchItem }} jobTemplate={{ jobVersionTemplateLink }}/jobs/Project_GitFlow'
+- name: 'create and run {{ project_name }}_Generate_{{ gitBranchItem }} job'
+  include: "{{ tasks_version_path }}/subtasks/create-and-run-job.yml generate_job={{ project_name }}_Generate_{{ gitBranchItem }} job_\
+template={{ job_version_template_link }}/jobs/Project_GitFlow"
 
-- name: 'remove {{ projectName }}_Generate_{{ gitBranchItem }} job'
-  include: '{{ tasksVersionPath }}/subtasks/remove-job.yml jobToRemove={{ projectName }}_Generate_{{ gitBranchItem }}'
+- name: 'remove {{ project_name }}_Generate_{{ gitBranchItem }} job'
+  include: '{{ tasks_version_path }}/subtasks/remove-job.yml job_to_remove={{ project_name }}_Generate_{{ gitBranchItem }}'

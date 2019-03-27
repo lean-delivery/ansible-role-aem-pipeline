@@ -26,25 +26,25 @@
         <hudson.model.RunParameterDefinition>
           <name>source_job</name>
           <description></description>
-          <projectName>{{ projectName }}_BuildCounter</projectName>
+          <project_name>{{ project_name }}_BuildCounter</project_name>
           <filter>SUCCESSFUL</filter>
         </hudson.model.RunParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
-          <name>{{ projectNameConfig }}_all</name>
+          <name>{{ project_name_config }}_all</name>
           <description>True if all AEM artifact should be deployed</description>
           <defaultValue>true</defaultValue>
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
-          <name>{{ projectNameConfig }}_dispatcher</name>
+          <name>{{ project_name_config }}_dispatcher</name>
           <description>True if Apache and Dispatcher configuration should be deployed</description>
           <defaultValue>false</defaultValue>
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>{{ projectNameConfig }}_environment</name>
+          <name>{{ project_name_config }}_environment</name>
           <description>Select environment for deployment</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-            {% for envItem in envTypesList if envItem != buildFlowName.integrationEnv %}
+            {% for envItem in env_types_list if envItem != buildFlowName.integrationEnv %}
               <string>{{ envItem }}</string>
             {% endfor %}
             </a>
@@ -101,9 +101,9 @@ node {
     }
 }
 
-def takeJobInfo(jobName) {
+def takeJobInfo(job_name) {
     dir(&apos;temp&apos;) {
-        httpRequest acceptType: &apos;APPLICATION_JSON&apos;, outputFile: &apos;job_file.json&apos;, authentication: &apos;jenkins-on-jenkins&apos;, contentType: &apos;APPLICATION_JSON&apos;, url: &quot;http://localhost:{{ jenkinsPort }}/job/${jobName}api/json&quot;
+        httpRequest acceptType: &apos;APPLICATION_JSON&apos;, outputFile: &apos;job_file.json&apos;, authentication: &apos;jenkins-on-jenkins&apos;, contentType: &apos;APPLICATION_JSON&apos;, url: &quot;http://localhost:{{ jenkins_port }}/job/${job_name}api/json&quot;
         def jobInfo = jsonParse(readFile(&quot;job_file.json&quot;))
         deleteDir()
         return jobInfo

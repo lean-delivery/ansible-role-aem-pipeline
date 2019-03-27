@@ -6,11 +6,11 @@
     msg: '{{ item }} variable should be defined! Check Readme.rd (kb link)'
   when: item is undefined
   with_items:
-    - buildFlows
+    - build_flows
 
 - name: initialize all required variables
   set_fact:
-    jenkinsPluginList:
+    jenkins_plugin_list:
       - workflow-aggregator
       - blueocean
       - gitlab-plugin
@@ -23,13 +23,14 @@
       - ssh-agent
       - sonar
       - jacoco
-    envTypesList: []
+    env_types_list: []
 
-- name: find all existing environmentTypes on AEM instances
+- name: find all existing environment_types on AEM instances
   set_fact:
-    envTypesList: "{{ envTypesList }} + [ '{% if hostvars[item]['environmentType'] is defined %}{{ hostvars[item]['environmentType'] }}{% else %}{{ environment_type }}{% endif %}' ]"
+    env_types_list: "{{ env_types_list }} + [ '{% if hostvars[item]['environment_type'] is defined %}{{ hostvars[item]['environmen\
+t_type'] }}{% else %}{{ environment_type }}{% endif %}' ]"
   with_items: "{{ groups['aem_instances'] }}"
 
 - name: make this list unique
   set_fact:
-    envTypesList: '{{ envTypesList|unique }}'
+    env_types_list: '{{ env_types_list|unique }}'

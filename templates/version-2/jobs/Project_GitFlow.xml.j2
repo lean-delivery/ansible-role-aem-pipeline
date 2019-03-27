@@ -23,7 +23,7 @@
     def gitBranch = &apos;{{ gitBranchItem }}&apos;
 
     sshagent([&apos;git-credentials&apos;]) {
-        dir(&apos;{{ jenkinsHome }}/workspace/{{ projectName }}_Generate/{{ projectNameConfig }}&apos;) {
+        dir(&apos;{{ jenkins_home }}/workspace/{{ project_name }}_Generate/{{ project_name_config }}&apos;) {
 
           sh &quot; git config user.name {{ git_username }}&quot;
           sh &quot; git config user.email {{ git_email }}&quot;

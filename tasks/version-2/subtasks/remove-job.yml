@@ -1,11 +1,11 @@
 ---
 # file: tasks/version-2/subtasks/remove-job.yml
 
-- name: 'Remove {{ jobToRemove }} job'
+- name: Remove {{ job_to_remove }} job
   uri:
-    url: '{{ jobCheckLink }}/{{ jobToRemove }}/doDelete'
+    url: '{{ job_check_link }}/{{ job_to_remove }}/doDelete'
     method: POST
     force_basic_auth: yes
-    user: '{{ jenkinsAdminLogin }}'
-    password: '{{ jenkinsAdminToken }}'
+    user: '{{ jenkins_admin_login }}'
+    password: '{{ jenkins_admin_token }}'
     status_code: 302

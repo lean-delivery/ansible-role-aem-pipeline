@@ -1,25 +1,25 @@
 ---
 # file: tasks/version-2/create-git-branch.yml
 
-- name: 'create {{ generateJob }} job'
-  include: '{{ tasksBasePath }}/create-job.yml jobName={{ generateJob }}'
+- name: 'create {{ generate_job }} job'
+  include: '{{ tasks_base_path }}/create-job.yml job_name={{ generate_job }}'
 
-- name: 'run {{ generateJob }} job'
+- name: 'run {{ generate_job }} job'
   uri:
-    url: '{{ jobCheckLink }}/{{ generateJob }}/build'
+    url: '{{ job_check_link }}/{{ generate_job }}/build'
     method: POST
     force_basic_auth: yes
     follow_redirects: all
-    user: '{{ jenkinsAdminLogin }}'
-    password: '{{ jenkinsAdminToken }}'
+    user: '{{ jenkins_admin_login }}'
+    password: '{{ jenkins_admin_token }}'
     status_code: 201
 
-- name: 'wait until {{ generateJob }} job in progress'
+- name: 'wait until {{ generate_job }} job in progress'
   uri:
-    url: '{{ jobCheckLink }}/{{ generateJob }}/api/json'
+    url: '{{ job_check_link }}/{{ generate_job }}/api/json'
     force_basic_auth: yes
-    user: '{{ jenkinsAdminLogin }}'
-    password: '{{ jenkinsAdminToken }}'
+    user: '{{ jenkins_admin_login }}'
+    password: '{{ jenkins_admin_token }}'
     return_content: yes
   register: jenkinsJobStatus
   until: jenkinsJobStatus.json.lastSuccessfulBuild.number is defined
@@ -27,11 +27,11 @@
   delay: 2
   ignore_errors: yes
 
-- name: check {{ generateJob }} job result'
+- name: check {{ generate_job }} job result'
   uri:
-    url: '{{ jobCheckLink }}/{{ generateJob }}/api/json'
+    url: '{{ job_check_link }}/{{ generate_job }}/api/json'
     force_basic_auth: yes
-    user: '{{ jenkinsAdminLogin }}'
-    password: '{{ jenkinsAdminToken }}'
+    user: '{{ jenkins_admin_login }}'
+    password: '{{ jenkins_admin_token }}'
     return_content: yes
   register: jenkinsJobStatus

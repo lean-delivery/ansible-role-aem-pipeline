@@ -4,12 +4,12 @@
 git_username: "User_name"
 git_email: "git@email.com"
 
-jenkinsPluginList:
+jenkins_plugin_list:
   - ansible
 
-jenkinsFile: /opt/jenkins.done
-sonarAdminLogin: admin
-sonarAdminPassword: admin
+jenkins_file: /opt/jenkins.done
+sonar_admin_login: admin
+sonar_admin_password: admin
 
 archetypeGitRepository: 'git@git.epam.com:epm-aem/maven-archetype-2.git'
 archetypeGitBranch: master
@@ -20,42 +20,41 @@ nexusMajorVersion: 3
 nexusPort: 8081
 
 
-sonarServerAddress: "{{ groups['sonar_servers'][0] }}"
+sonar_server_address: "{{ groups['sonar_servers'][0] }}"
 sonarPort: 9000
 
 # Maven Major Version
-mavenMajorVersion: 3
+maven_major_version: 3
 # Maven Minor Version
-mavenMinorVersion: 6.0
+maven_minor_version: 6.0
 
-distrStorage: /tmp
+distr_storage: /tmp
 
-mavenHome: /opt/maven
-mavenLink: "http://ftp.byfly.by/pub/apache.org/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz"
-mavenPackageName: apache-maven-3.6.0-bin.tar.gz
+maven_home: /opt/maven
+maven_link: "http://ftp.byfly.by/pub/apache.org/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz"
+maven_package_name: apache-maven-3.6.0-bin.tar.gz
 
-mavenVersion: '{{ mavenMajorVersion }}.{{ mavenMinorVersion }}'
-mavenBinFile: '{{ mavenHome }}/apache-maven-{{ mavenMajorVersion }}.{{ mavenMinorVersion }}/bin/mvn'
+mavenVersion: '{{ maven_major_version }}.{{ maven_minor_version }}'
+maven_bin_file: '{{ maven_home }}/apache-maven-{{ maven_major_version }}.{{ maven_minor_version }}/bin/mvn'
 
-jenkinsPackageList:
+jenkins_package_list:
   - zip
 
-jenkinsPipModules:
-  - ansible
+jenkins_pip_modules: ansible
 
-jenkinsHome: /var/lib/jenkins
-jenkinsPort: 8080
-jenkinsBaseLink: 'http://localhost:{{ jenkinsPort }}'
+jenkins_home: /var/lib/jenkins
+jenkins_port: 8080
+jenkins_base_link: 'http://localhost:{{ jenkins_port }}'
 
-jenkinsUser: jenkins
+jenkins_user: jenkins
 
 jenkinsAdmin:
   name: jenkins_admin
   password: jenkins_admin
 
-buildFlows:
+build_flows:
  - 
-   projectName: "test"
+   project_name: "test"
    gitRepository: ''
    integrationEnv: 'dev_test'
    autoDeployOn:
@@ -64,22 +63,22 @@ buildFlows:
       environment: dev,qa
 
 
-jenkinsAdminToken: ""
+jenkins_admin_token: ""
 
-jenkinsAdminLogin: '{{ jenkinsAdmin.name }}'
+jenkins_admin_login: '{{ jenkinsAdmin.name }}'
 myJenkinsAttributes:
-  url: '{{ jenkinsBaseLink }}'
+  url: '{{ jenkins_base_link }}'
   url_username: '{{ jenkinsAdmin.name }}'
   url_password: '{{ jenkinsAdmin.password }}'
 
 
 
-jenkinsLoadLink: '{{ jenkinsBaseLink }}/login?from=%2F'
-jenkinsPluginListLink: '{{ jenkinsBaseLink }}/pluginManager/api/xml?depth=1&xpath=/*/*/shortName|/*/*/version&wrapper=plugins'
-jenkinsPluginInstallLink: '{{ jenkinsBaseLink }}/pluginManager/installNecessaryPlugins'
-jenkinsUpdateCLink: '{{ jenkinsBaseLink }}/updateCenter/'
-jenkinsScriptLink: '{{ jenkinsBaseLink }}/script'
-jenkinsRestartLink: '{{ jenkinsBaseLink }}/safeRestart'
+jenkinsLoadLink: '{{ jenkins_base_link }}/login?from=%2F'
+jenkins_plugin_listLink: '{{ jenkins_base_link }}/pluginManager/api/xml?depth=1&xpath=/*/*/shortName|/*/*/version&wrapper=plugins'
+jenkinsPluginInstallLink: '{{ jenkins_base_link }}/pluginManager/installNecessaryPlugins'
+jenkinsUpdateCLink: '{{ jenkins_base_link }}/updateCenter/'
+jenkinsScriptLink: '{{ jenkins_base_link }}/script'
+jenkins_restart_link: '{{ jenkins_base_link }}/safeRestart'
 
 CICDVersion: 2
 

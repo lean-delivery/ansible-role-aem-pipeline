@@ -4,24 +4,31 @@
 - name: install all required packages
   package:
     name: '{{ item }}'
-  with_items: '{{ jenkinsPackageList }}'
+  register: result
+  retries: 5
+  until: result is  success
+  with_items: '{{ jenkins_package_list }}'
   become: True
 
 - name: install all required python packages via pip
   pip:
-    name: '{{ item }}'
-  with_items: '{{ jenkinsPipModules }}'
+    name: '{{ jenkins_pip_modules }}'
+  register: pip_result
+  retries: 5
+  until: pip_result is  success
   become: True
- 
+
+
+
 - name: install all required jenkins plugins
 
   jenkins_plugin:
     url_username: '{{ jenkinsAdmin.name }}'
     url_password: '{{ jenkinsAdmin.password }}'
-    url: '{{ jenkinsBaseLink }}'
+    url: '{{ jenkins_base_link }}'
     name: '{{ item }}'
     timeout: 60000
-  with_items: '{{ jenkinsPluginList }}'
+  with_items: '{{ jenkins_plugin_list }}'
   notify:
     - restart jenkins with token
     - load jenkins with token
@@ -30,13 +37,13 @@
 
 #- name: ensure that SonarQube hook for jenkins instances is present
 #  uri:
-#    url: "{{ sonarBaseLink }}/api/webhooks/create"
+#    url: "{{ sonar_base_link }}/api/webhooks/create"
 #    method: POST
-#    user: "{{ sonarAdminLogin }}"
-#    password: "{{ sonarAdminPassword }}"
-#    force_basic_auth: yes
+#    user: "{{ sonar_admin_login }}"
+#    password: "{{ sonar_admin_password }}"
+#    force_basic_auth: True
 #    follow_redirects: all
-#    body: "name={{ inventory_hostname }}&url={{ jenkinsBaseLink }}/sonarqube-webhook/"
+#    body: "name={{ inventory_hostname }}&url={{ jenkins_base_link }}/sonarqube-webhook/"
 #    headers:
 #      Content-Type: 'application/x-www-form-urlencoded'
 #    status_code: 200

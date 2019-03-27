@@ -31,7 +31,7 @@
     def archetypeGitBranch = &apos;{{ archetypeGitBranch }}&apos;
     def aem_version = &apos;{{ aem_version }}&apos;
 
-    def projectName = &apos;{{ projectNameConfig }}&apos;
+    def project_name = &apos;{{ project_name_config }}&apos;
     def projectGit = &apos;{{ gitRepository }}&apos;
     
     deleteDir()
@@ -45,16 +45,16 @@
       sh script: &quot;&quot;&quot;\
         ${mvnHome}/bin/mvn archetype:generate \
          -DarchetypeGroupId=com.epam.aem.mvn -DarchetypeArtifactId=maven-archetype-aem -DarchetypeVersion=2.2-SNAPSHOT \
-         -DgroupId=com.epam.${projectName} -DartifactId=${projectName} -Dversion=2.2-SNAPSHOT \
-         -DartifactName=&quot;${projectName.toUpperCase()} AEM Application&quot; \
-         -DappsFolderName=${projectName} \
-         -DcontentFolderName=${projectName}.content \
-         -DpackageGroup=${projectName}.packages \
+         -DgroupId=com.epam.${project_name} -DartifactId=${project_name} -Dversion=2.2-SNAPSHOT \
+         -DartifactName=&quot;${project_name.toUpperCase()} AEM Application&quot; \
+         -DappsFolderName=${project_name} \
+         -DcontentFolderName=${project_name}.content \
+         -DpackageGroup=${project_name}.packages \
          -DaemVersion=${aem_version}.0 \
          -DaddSampleContent=y \
          -DinteractiveMode=false&quot;&quot;&quot;
     }
-    dir(projectName) {
+    dir(project_name) {
       stage(&apos;Prepare git repository&apos;) {
         sshagent([&apos;git-credentials&apos;]) {
           sh &apos;git init&apos;

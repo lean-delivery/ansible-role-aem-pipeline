@@ -2,24 +2,24 @@
 
 - name: restart jenkins with token
   uri:
-    url: '{{ jenkinsRestartLink }}'
-    force_basic_auth: yes
-    user: '{{ jenkinsAdminLogin }}'
-    password: '{{ jenkinsAdminToken }}'
+    url: '{{ jenkins_restart_link }}'
+    force_basic_auth: True
+    user: '{{ jenkins_admin_login }}'
+    password: '{{ jenkins_admin_token }}'
     method: POST
     status_code: 302
 
 - name: load jenkins with token
   uri:
-    url: 'http://{{ inventory_hostname }}:{{ jenkinsPort }}/login?from=%2F'
+    url: 'http://{{ inventory_hostname }}:{{ jenkins_port }}/login?from=%2F'
     method: GET
-    user: '{{ jenkinsAdminLogin }}'
-    password: '{{ jenkinsAdminToken }}'
-    force_basic_auth: yes
+    user: '{{ jenkins_admin_login }}'
+    password: '{{ jenkins_admin_token }}'
+    force_basic_auth: True
     follow_redirects: all
-    return_content: yes
+    return_content: True
   register: jenkinsLoad
   until: ('Welcome to Jenkins!' in jenkinsLoad.content)
   retries: 100
   delay: 60
-  ignore_errors: yes
+  ignore_errors: True

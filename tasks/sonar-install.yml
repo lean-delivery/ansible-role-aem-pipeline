@@ -2,31 +2,31 @@
 
 - name: check if service was installed before
   stat:
-    path: '{{ jenkinsFile }}'
+    path: '{{ jenkins_file }}'
   register: jenkins_done
 
 - block:
 
   - name: ensure that SonarQube hook for jenkins instances is present
     uri:
-      url: "{{ sonarBaseLink }}/api/webhooks/create"
+      url: "{{ sonar_base_link }}/api/webhooks/create"
       method: POST
-      user: "{{ sonarAdminLogin }}"
-      password: "{{ sonarAdminPassword }}"
-      force_basic_auth: yes
+      user: "{{ sonar_admin_login }}"
+      password: "{{ sonar_admin_password }}"
+      force_basic_auth: True
       follow_redirects: all
-      body: "name={{ inventory_hostname }}&url={{ jenkinsBaseLink }}/sonarqube-webhook/"
+      body: "name={{ inventory_hostname }}&url={{ jenkins_base_link }}/sonarqube-webhook/"
       headers:
         Content-Type: 'application/x-www-form-urlencoded'
       status_code: 200
 
   - name: ensure that SonarQube user is  present
     uri:
-      url: "{{ sonarBaseLink }}/api/users/create"
+      url: "{{ sonar_base_link }}/api/users/create"
       method: POST
-      user: "{{ sonarAdminLogin }}"
-      password: "{{ sonarAdminPassword }}"
-      force_basic_auth: yes
+      user: "{{ sonar_admin_login }}"
+      password: "{{ sonar_admin_password }}"
+      force_basic_auth: True
       follow_redirects: all
       body: "name={{ sonarJenkinsUser.name }}&login={{ sonarJenkinsUser.id }}&password={{ sonarJenkinsUser.id }}"
       headers:
@@ -36,32 +36,32 @@
 
   - name: generate token for jenkins user in sonar
     uri:
-      url: "http://{{ sonarServerAddress }}:{{ sonarPort }}/api/user_tokens/generate"
+      url: "http://{{ sonar_server_address }}:{{ sonarPort }}/api/user_tokens/generate"
       method: POST
-      user: "{{ sonarAdminLogin }}"
-      password: "{{ sonarAdminPassword }}"
-      force_basic_auth: yes
+      user: "{{ sonar_admin_login }}"
+      password: "{{ sonar_admin_password }}"
+      force_basic_auth: True
       body: "login={{ sonarJenkinsUser.id }}&name={{ sonarJenkinsUser.name }} token for access from Jenkins CI tool"
       status_code: 200
-      return_content: yes
+      return_content: True
     register: tokenCreatingMessage
 
-  - name: 'write token in {{ jenkinsFile }}'
+  - name: 'write token in {{ jenkins_file }}'
     ini_file:
-      path: '{{ jenkinsFile }}'
-      owner: '{{ jenkinsUser }}'
-      group: '{{ jenkinsUser }}'
+      path: '{{ jenkins_file }}'
+      owner: '{{ jenkins_user }}'
+      group: '{{ jenkins_user }}'
       mode: 0600
       section: tokens
       option: sonar_token
       value: '{{ tokenCreatingMessage.json.token }}'
     become: True
-  when: "jenkins_done.stat.exists == false and inventory_hostname != 'localhost'"
+  when: "not jenkins_done.stat.exists  and inventory_hostname != 'localhost'"
 
 - name: take raw jenkins token on Sonarqube
-  shell: "cat {{ jenkinsFile }} | grep sonar_token | sed -e 's/sonar_token = //g'"
+  shell: "cat {{ jenkins_file }} | grep sonar_token | sed -e 's/sonar_token = //g'"
   register: dirtyJenkinsToken
-  changed_when: false
+  changed_when: False
   tags:
     - skip_ansible_lint
 - name: set jenkins token on Sonarqube
@@ -71,9 +71,9 @@
 - name: check SonarQube main configuration
   template:
     src: hudson.plugins.sonar.SonarGlobalConfiguration.xml.j2
-    dest: '{{ jenkinsHome }}/hudson.plugins.sonar.SonarGlobalConfiguration.xml'
-    owner: '{{ jenkinsUser }}'
-    group: '{{ jenkinsUser }}'
+    dest: '{{ jenkins_home }}/hudson.plugins.sonar.SonarGlobalConfiguration.xml'
+    owner: '{{ jenkins_user }}'
+    group: '{{ jenkins_user }}'
   become: True
   when: "inventory_hostname != 'localhost'"
   notify:

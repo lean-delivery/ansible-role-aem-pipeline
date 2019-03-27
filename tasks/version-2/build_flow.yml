@@ -3,75 +3,76 @@
 
 - name: prepare buildFlow variables
   set_fact:
-    projectName: "{{ buildFlowName.projectName|replace('-','_') }}"
-    projectNameConfig: "{{ buildFlowName.projectName|replace('-','_')|lower() }}"
+    project_name: "{{ buildFlowName.project_name|replace('-','_') }}"
+    project_name_config: "{{ buildFlowName.project_name|replace('-','_')|lower() }}"
     gitRepository: '{{ buildFlowName.gitRepository }}'
-    gitProjectBranches:
+    git_project_branches:
       - master
       - develop
       - feature-0
 - name: prepare variables
   set_fact:
-    cicdFile: '/opt/{{ projectNameConfig }}.done'
+    cicd_file: '/opt/{{ project_name_config }}.done'
     envAuthorDispatchers: []
     envPublishDispatchers: []
 
 - name: if it is required - create nexus repository
-  include: '{{ tasksBasePath }}/nexus-repository.yml'
+  include: '{{ tasks_base_path }}/nexus-repository.yml'
 
 - name: check if cicd has been already created
   stat:
-    path: '{{ cicdFile }}'
+    path: '{{ cicd_file }}'
   register: cicd_done
 
 - block:
-  - name: 'create and run {{ projectName }}_Generate job'
-    include: '{{ tasksVersionPath }}/subtasks/create-and-run-job.yml generateJob={{ projectName }}_Generate jobTemplate={{ jobVersionTemplateLink }}/jobs/Project_Generate'
+  - name: 'create and run {{ project_name }}_Generate job'
+    include: "{{ tasks_version_path }}/subtasks/create-and-run-job.yml generate_job={{ project_name }}_Generate job_te\
+mplate={{ job_version_template_link }}/jobs/Project_Generate"
 
   - name: 'find CI AEM Author instance in {{ buildFlowName.integrationEnv }}'
     set_fact:
-      ciAEMAuthor: '{{ aemItem }}'
+      ci_aem_author: '{{ aem_item }}'
     when: "buildFlowName.integrationEnv == environment_type"
     with_items: "{{ groups['aem_authors'] }}"
     loop_control:
-      loop_var: aemItem
+      loop_var: aem_item
 
 
   - name: Display all variables/facts known for a host
     debug:
-      var: '{{ ciAEMAuthor }}'
+      var: '{{ ci_aem_author }}'
 
 
 
   - name: find out all required dispatchers and create related profiles
-    include: '{{ tasksVersionPath }}/prepare-dispatcher.yml envType={{ envItem }}'
-    with_items: '{{ envTypesList }}'
+    include: '{{ tasks_version_path }}/prepare-dispatcher.yml env_type={{ envItem }}'
+    with_items: '{{ env_types_list }}'
     loop_control:
       loop_var: envItem
 
-  - name: 'check Jenkinsfile for {{ projectName }} Project'
+  - name: 'check Jenkinsfile for {{ project_name }} Project'
     template:
-      src: '{{ jobVersionTemplateLink }}/Jenkinsfile.j2'
-      dest: '{{ jenkinsHome }}/workspace/{{ projectName }}_Generate/{{ projectNameConfig }}/Jenkinsfile'
-      owner: '{{ jenkinsUser }}'
+      src: '{{ job_version_template_link }}/Jenkinsfile.j2'
+      dest: '{{ jenkins_home }}/workspace/{{ project_name }}_Generate/{{ project_name_config }}/Jenkinsfile'
+      owner: '{{ jenkins_user }}'
     become: True
 
   - name: run git workflow backbone generation
-    include: '{{ tasksVersionPath }}/create-git-branch.yml'
-    with_items: '{{ gitProjectBranches }}'
+    include: '{{ tasks_version_path }}/create-git-branch.yml'
+    with_items: '{{ git_project_branches }}'
     loop_control:
       loop_var: gitBranchItem
-  - name: 'remove {{ projectName }}_Generate job'
-    include: '{{ tasksVersionPath }}/subtasks/remove-job.yml jobToRemove={{ projectName }}_Generate'
-  - name: 'create BuildFlow multibranch for {{ projectName }} project'
-    include: '{{ tasksBasePath }}/create-job.yml jobName={{ projectName }}_BuildFlow jobTemplate={{ jobVersionTemplateLink }}/jobs/BuildFlow'
-  - name: 'create Counter job for {{ projectName }} project'
-    include: '{{ tasksBasePath }}/create-job.yml jobName={{ projectName }}_BuildCounter jobTemplate={{ jobVersionTemplateLink }}/jobs/Counter'
-  - name: 'create Deployment jobs for {{ projectName }} project'
-    include: '{{ tasksBasePath }}/create-job.yml jobName={{ projectName }}_Deploy jobTemplate={{ jobVersionTemplateLink }}/jobs/Deploy'
+  - name: 'remove {{ project_name }}_Generate job'
+    include: '{{ tasks_version_path }}/subtasks/remove-job.yml job_to_remove={{ project_name }}_Generate'
+  - name: 'create BuildFlow multibranch for {{ project_name }} project'
+    include: '{{ tasks_base_path }}/create-job.yml job_name={{ project_name }}_BuildFlow job_template={{ job_version_template_link }}/jobs/BuildFlow'
+  - name: 'create Counter job for {{ project_name }} project'
+    include: '{{ tasks_base_path }}/create-job.yml job_name={{ project_name }}_BuildCounter job_template={{ job_version_template_link }}/jobs/Counter'
+  - name: 'create Deployment jobs for {{ project_name }} project'
+    include: '{{ tasks_base_path }}/create-job.yml job_name={{ project_name }}_Deploy job_template={{ job_version_template_link }}/jobs/Deploy'
   - name: save successfull installation in file
     file:
-      path: '{{ cicdFile }}'
+      path: '{{ cicd_file }}'
       state: touch
     become: True
   when: not cicd_done.stat.exists

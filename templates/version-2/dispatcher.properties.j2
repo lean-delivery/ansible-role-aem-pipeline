@@ -2,12 +2,12 @@
 dispatcher.server.root={{ 'apache_dir' }}
 dispatcher.apache.user={{ 'web_server_user' }}
 dispatcher.apache.group={{ 'web_server_group' }}
-dispatcher.apache.server.name={{ dispItem }}
+dispatcher.apache.server.name={{ disp_item }}
 dispatcher.apache.document.root={{ 'dispatcher_root' }}
 
 # common dispatcher configs
 dispatcher.document.root={{ 'dispatcher_root' }}
-dispatcher.render.host={% if hostvars[dispItem]['render'] is defined %}{{ hostvars[dispItem]['render'].split(',')[0] }}{% else %}{{ dispItem }}{% endif %}
+dispatcher.render.host={% if hostvars[disp_item]['render'] is defined %}{{ hostvars[disp_item]['render'].split(',')[0] }}{% else %}{{ disp_item }}{% endif %}
 
 # publish dispatcher configs
-dispatcher.render.port={% if hostvars[dispItem]['render'] is defined %}{{ hostvars[hostvars[dispItem]['render'].split(',')[0]]['aem_instance_port'] }}{% else %}{{ aem_instance_port }}{% endif %}
+dispatcher.render.port={% if hostvars[disp_item]['render'] is defined %}{{ hostvars[hostvars[disp_item]['render'].split(',')[0]]['aem_instance_port'] }}{% else %}{{ aem_instance_port }}{% endif %}
