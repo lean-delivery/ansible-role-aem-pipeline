@@ -116,7 +116,7 @@ node {
             credential: '',
              extraVars: """---
 
-                 s3_object: ${gitBranch}/${buildNumber}/${project_name_config}-${deploymentItem}/${project_name_config}-${deploymentItem}-2.2-SNAPSHOT.zip
+                 s3_object: ${gitBranch}/${buildNumber}/{{ project_name_config }}-${deploymentItem}/{{ project_name_config }}-${deploymentItem}-2.2-SNAPSHOT.zip
                  
                  """
         )
@@ -132,7 +132,7 @@ node {
 
 def takeJobInfo(jobName) {
     dir(&apos;temp&apos;) {
-        httpRequest acceptType: &apos;APPLICATION_JSON&apos;, outputFile: &apos;job_file.json&apos;, authentication: &apos;jenkins-on-jenkins&apos;, contentType: &apos;APPLICATION_JSON&apos;, url: &quot;http://localhost:{{ jenkins_port }}/job/${jobName}api/json&quot;
+        httpRequest acceptType: &apos;APPLICATION_JSON&apos;, outputFile: &apos;job_file.json&apos;, contentType: &apos;APPLICATION_JSON&apos;, url: &quot;${jobName}api/json&quot;
         def jobInfo = jsonParse(readFile(&quot;job_file.json&quot;))
         deleteDir()
         return jobInfo
