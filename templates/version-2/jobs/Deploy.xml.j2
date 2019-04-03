@@ -82,11 +82,11 @@ node {
         buildNumber = source_job.split(&apos;/&apos;)[-1]
         gitBranch = jobInfo.actions[0].causes[0].upstreamUrl.split(&apos;/&apos;)[-1]
 
-        if ( {{ projectNameConfig }}_all == &apos;true&apos;) {
+        if ( {{ project_name_config }}_all == &apos;true&apos;) {
             aemDeploymentList.push(&apos;all&apos;)
         }
         deploymentList += aemDeploymentList
-        if ( {{ projectNameConfig }}_dispatcher == &apos;true&apos; ) {
+        if ( {{ project_name_config }}_dispatcher == &apos;true&apos; ) {
             deploymentList.push(&apos;dispatcher&apos;)
         }
 
