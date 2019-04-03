@@ -23,13 +23,6 @@
       - ssh-agent
       - sonar
       - jacoco
-    env_types_list: []
-
-- name: find all existing environment_types on AEM instances
-  set_fact:
-    env_types_list: "{{ env_types_list }} + [ '{% if hostvars[item]['environment_type'] is defined %}{{ hostvars[item]['environmen\
-t_type'] }}{% else %}{{ environment_type }}{% endif %}' ]"
-  with_items: "{{ groups['aem_instances'] }}"
 
 - name: make this list unique
   set_fact:

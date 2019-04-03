@@ -19,6 +19,12 @@ nexusServerAddress: "{{ groups['nexus_servers'][0] }}"
 nexusMajorVersion: 3
 nexusPort: 8081
 
+env_types_list:
+  - dev
+  - test
+  - uat
+  - prod
+
 
 sonar_server_address: "{{ groups['sonar_servers'][0] }}"
 sonarPort: 9000
