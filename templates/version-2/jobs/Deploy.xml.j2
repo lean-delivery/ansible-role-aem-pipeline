@@ -102,7 +102,6 @@ node {
      println "AEM Artifacts deployment"
 
    for (deploymentItem in deploymentList) {
-       def artifactName = "${project_name_config}-${artifact.name}"
        ansibleTower(
             towerServer: 'aem-tower.epm-ldi.projects.epam.com',
             templateType: 'job',
