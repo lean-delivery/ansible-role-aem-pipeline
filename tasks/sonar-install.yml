@@ -22,40 +22,54 @@
 
   - name: ensure that SonarQube user is  present
     uri:
-      url: "{{ sonar_base_link }}/api/users/create"
-      method: POST
+      url: "{{ sonar_base_link }}/api/users/search?q={{ sonarJenkinsUser.id }}"
+      method: GET
       user: "{{ sonar_admin_login }}"
       password: "{{ sonar_admin_password }}"
       force_basic_auth: True
       follow_redirects: all
-      body: "name={{ sonarJenkinsUser.name }}&login={{ sonarJenkinsUser.id }}&password={{ sonarJenkinsUser.id }}"
-      headers:
-        Content-Type: 'application/x-www-form-urlencoded'
       status_code: 200
+    register: userdict
 
+  - block:
 
-  - name: generate token for jenkins user in sonar
-    uri:
-      url: "http://{{ sonar_server_address }}:{{ sonarPort }}/api/user_tokens/generate"
-      method: POST
-      user: "{{ sonar_admin_login }}"
-      password: "{{ sonar_admin_password }}"
-      force_basic_auth: True
-      body: "login={{ sonarJenkinsUser.id }}&name={{ sonarJenkinsUser.name }} token for access from Jenkins CI tool"
-      status_code: 200
-      return_content: True
-    register: tokenCreatingMessage
+    - name: create SonarQube user
+      uri:
+        url: "{{ sonar_base_link }}/api/users/create"
+        method: POST
+        user: "{{ sonar_admin_login }}"
+        password: "{{ sonar_admin_password }}"
+        force_basic_auth: True
+        follow_redirects: all
+        body: "name={{ sonarJenkinsUser.name }}&login={{ sonarJenkinsUser.id }}&password={{ sonarJenkinsUser.id }}"
+        headers:
+          Content-Type: 'application/x-www-form-urlencoded'
+        status_code: 200
 
-  - name: 'write token in {{ jenkins_file }}'
-    ini_file:
-      path: '{{ jenkins_file }}'
-      owner: '{{ jenkins_user }}'
-      group: '{{ jenkins_user }}'
-      mode: 0600
-      section: tokens
-      option: sonar_token
-      value: '{{ tokenCreatingMessage.json.token }}'
-    become: True
+    - name: generate token for jenkins user in sonar
+      uri:
+        url: "http://{{ sonar_server_address }}:{{ sonarPort }}/api/user_tokens/generate"
+        method: POST
+        user: "{{ sonar_admin_login }}"
+        password: "{{ sonar_admin_password }}"
+        force_basic_auth: True
+        body: "login={{ sonarJenkinsUser.id }}&name={{ sonarJenkinsUser.name }} token for access from Jenkins CI tool"
+        status_code: 200
+        return_content: True
+      register: tokenCreatingMessage
+
+    - name: 'write token in {{ jenkins_file }}'
+      ini_file:
+        path: '{{ jenkins_file }}'
+        owner: '{{ jenkins_user }}'
+        group: '{{ jenkins_user }}'
+        mode: 0600
+        section: tokens
+        option: sonar_token
+        value: '{{ tokenCreatingMessage.json.token }}'
+      become: True
+
+    when: "{{ userdict['json']['users']|length == 0 }}"
   when: "not jenkins_done.stat.exists  and inventory_hostname != 'localhost'"
 
 - name: take raw jenkins token on Sonarqube
