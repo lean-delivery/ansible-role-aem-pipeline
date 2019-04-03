@@ -122,6 +122,7 @@ node {
         )
 
     }
+}
 
     stage(&apos;Dispatcher Apache configuration deployment&apos;) {
                  println "Dispatcher Apache configuration deployment"
@@ -129,14 +130,17 @@ node {
     }
 }
 
-def takeJobInfo(job_name) {
-                 """ dir(&apos;temp&apos;) {
-        )        httpRequest acceptType: &apos;APPLICATION_JSON&apos;, outputFile: &apos;job_file.json&apos;, authentication: &apos;jenkins-on-jenkins&apos;, contentType: &apos;APPLICATION_JSON&apos;, url: &quot;http://localhost:{{ jenkins_port }}/job/${job_name}api/json&quot;
+def takeJobInfo(jobName) {
+    dir(&apos;temp&apos;) {
+        httpRequest acceptType: &apos;APPLICATION_JSON&apos;, outputFile: &apos;job_file.json&apos;, authentication: &apos;jenkins-on-jenkins&apos;, contentType: &apos;APPLICATION_JSON&apos;, url: &quot;http://localhost:{{ jenkinsPort }}/job/${jobName}api/json&quot;
         def jobInfo = jsonParse(readFile(&quot;job_file.json&quot;))
         deleteDir()
         return jobInfo
     }
-}</script>
+}
+
+
+</script>
     <sandbox>false</sandbox>
   </definition>
   <triggers/>
