@@ -1,7 +1,7 @@
 ---
 # file: tasks/version-2/subtasks/find-render.yml
 
-- name: 'find all authoring dispatchers in {{ env_type }} with render var'
+- name: 'find all authoring dispatchers  with render var'
   set_fact:
     disp_author_array: "{{ disp_author_array + [ findRender ] }}"
     envAuthorDispatchers: "{{ envAuthorDispatchers + [ findRender ] }}"
@@ -10,7 +10,7 @@
   loop_control:
     loop_var: renderItem
 
-- name: 'find all publishing dispatchers in {{ env_type }} with render var'
+- name: 'find all publishing dispatchers  with render var'
   set_fact:
     disp_publish_array: "{{ disp_publish_array + [ findRender ] }}"
     envPublishDispatchers: "{{ envPublishDispatchers + [ findRender ] }}"

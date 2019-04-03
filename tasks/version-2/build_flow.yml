@@ -45,10 +45,11 @@ mplate={{ job_version_template_link }}/jobs/Project_Generate"
 
 
   - name: find out all required dispatchers and create related profiles
-    include: '{{ tasks_version_path }}/prepare-dispatcher.yml env_type={{ envItem }}'
-    with_items: '{{ env_types_list }}'
-    loop_control:
-      loop_var: envItem
+    include: '{{ tasks_version_path }}/prepare-dispatcher.yml'
+#    include: '{{ tasks_version_path }}/prepare-dispatcher.yml env_type={{ envItem }}'
+#    with_items: '{{ env_types_list }}'
+#    loop_control:
+#      loop_var: envItem
 
   - name: 'check Jenkinsfile for {{ project_name }} Project'
     template:

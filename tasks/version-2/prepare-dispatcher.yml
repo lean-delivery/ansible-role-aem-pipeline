@@ -12,22 +12,21 @@
     temp_template_link: "{{ jenkins_home }}/workspace/{{ project_name }}_Gene\
 rate/{{ project_name_config }}/{{ project_name_config }}.dispatcher/src/environment"
 
-- name: 'find all AEM Authoring instances in {{ env_type }}'
+- name: 'find all AEM Authoring instances'
   set_fact:
     aemAuthorArray: '{{ aemAuthorArray + [ childAemItem ] }} '
-  when: "environment_type == env_type"
   with_items: "{{ groups['aem_authors'] }}"
   loop_control:
     loop_var: childAemItem
-- name: 'find all AEM Publishing instances in {{ env_type }}'
+
+- name: 'find all AEM Publishing instances'
   set_fact:
     aemPublishArray: '{{ aemPublishArray + [ childAemItem ] }} '
-  when: "environment_type == env_type"
   with_items: "{{ groups['aem_publishers'] }}"
   loop_control:
     loop_var: childAemItem
 
-- name: 'find all authoring dispatchers in {{ env_type }} w\o render var'
+- name: 'find all authoring dispatchers  w\o render var'
   set_fact:
     disp_author_array: '{{ disp_author_array + [ disp_item ] }}'
     envAuthorDispatchers: '{{ envAuthorDispatchers + [ disp_item ] }}'
@@ -35,7 +34,8 @@ rate/{{ project_name_config }}/{{ project_name_config }}.dispatcher/src/environm
   with_items: "{{ groups['aem_dispatchers'] }}"
   loop_control:
     loop_var: disp_item
-- name: 'find all publishing dispatchers in {{ env_type }} w\o render var'
+
+- name: 'find all publishing dispatchers  w\o render var'
   set_fact:
     disp_publish_array: '{{ disp_publish_array + [ disp_item ] }}'
     envPublishDispatchers: '{{ envPublishDispatchers + [ disp_item ] }}'
@@ -43,20 +43,22 @@ rate/{{ project_name_config }}/{{ project_name_config }}.dispatcher/src/environm
   with_items: "{{ groups['aem_dispatchers'] }}"
   loop_control:
     loop_var: disp_item
-- name: 'find all dispatcher instances in {{ env_type }} (with render var)'
+
+- name: 'find all dispatcher instances  (with render var)'
   set_fact:
     disp_render_array: '{{ disp_render_array + [ disp_item ] }}'
   with_items: "{{ groups['aem_dispatchers'] }}"
   when: "hostvars[disp_item]['render'] is defined"
   loop_control:
     loop_var: disp_item
+
 - name: find dispatchers with defined render variable which are connected with this AEM instance
   include: '{{ tasks_version_path }}/subtasks/find-render.yml findRender={{ disp_item }}'
   with_items: "{{ disp_render_array }}"
   loop_control:
     loop_var: disp_item
 
-- name: 'ensure that properties file for dispatchers on {{ env_type }} exists'
+- name: 'ensure that properties file for dispatchers  exists'
   template:
     src: "{{ job_version_template_link }}/dispatcher.properties.j2"
     dest: '{{ temp_template_link }}/{{ disp_item }}.properties'
