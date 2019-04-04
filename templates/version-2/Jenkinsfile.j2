@@ -99,7 +99,7 @@ node {
 			}
 		}
 		
-		stage("Upload AEM artifacts to Nexus") {
+		stage("Upload AEM artifacts to s3 storage") {
 			try {
 				for ( artifact in aemArtifactList ) {
 					dir(artifact.path) {
@@ -119,7 +119,7 @@ node {
 		}
 
 
-		stage("Upload Dispatchers artifacts to Nexus") {
+		stage("Upload Dispatchers artifacts to s3 storage") {
 			try {
 				dir("${project_name_config}.dispatcher") {
 
