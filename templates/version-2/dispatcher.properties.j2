@@ -3,10 +3,10 @@ dispatcher.server.root={{ 'apache_dir' }}
 dispatcher.apache.user={{ 'web_server_user' }}
 dispatcher.apache.group={{ 'web_server_group' }}
 dispatcher.apache.server.name={{ disp_item }}
-dispatcher.apache.document.root={{ 'dispatcher_root' }}
+dispatcher.apache.document.root={{ dispatcher_root }}
 
 # common dispatcher configs
-dispatcher.document.root={{ 'dispatcher_root' }}
+dispatcher.document.root={{ dispatcher_root }}
 dispatcher.render.host={% if hostvars[disp_item]['render'] is defined %}{{ hostvars[disp_item]['render'].split(',')[0] }}{% else %}{{ disp_item }}{% endif %}
 
 # publish dispatcher configs

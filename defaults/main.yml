@@ -14,6 +14,7 @@ sonar_admin_password: admin
 archetypeGitRepository: 'git@git.epam.com:epm-aem/maven-archetype-2.git'
 archetypeGitBranch: master
 
+dispatcher_root: /opt/aemDispatcherCache
 
 nexusServerAddress: "{{ groups['nexus_servers'][0] }}"
 nexusMajorVersion: 3
