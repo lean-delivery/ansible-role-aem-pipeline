@@ -98,7 +98,7 @@ node {
     stage(&apos;AEM Artifacts deployment&apos;) {
      println "AEM Artifacts deployment"
 
-   for (deploymentItem in deploymentList) {
+   for (deploymentItem in aemDeploymentList) {
        ansibleTower(
             towerServer: 'aem-tower.epm-ldi.projects.epam.com',
             templateType: 'job',
@@ -122,9 +122,32 @@ node {
 }
 
     stage(&apos;Dispatcher Apache configuration deployment&apos;) {
-                 println "Dispatcher Apache configuration deployment"
-                 
-    }
+                 if ( {{ projectNameConfig }}_dispatcher == &apos;true&apos; ) {
+                                 println "Dispatcher Apache configuration deployment"
+
+
+
+       ansibleTower(
+            towerServer: 'aem-tower.epm-ldi.projects.epam.com',
+            templateType: 'job',
+            jobTemplate: 'deploy-dispatcher-comfiguration',
+            importTowerLogs: true,
+            inventory: "${test_environment}-aem-epc",
+            jobTags: '',
+            skipJobTags: '',
+            limit: '',
+            removeColor: false,
+            verbose: true,
+            credential: '',
+             extraVars: """---
+
+                 s3_object: ${gitBranch}/${buildNumber}/{{ project_name_config }}-dispatcher/{{ project_name_config }}-dispatcher
+
+                 """
+        )
+
+       }
+     }
 }
 
 def takeJobInfo(jobName) {
