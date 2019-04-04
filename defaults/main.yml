@@ -89,7 +89,7 @@ jenkins_restart_link: '{{ jenkins_base_link }}/safeRestart'
 
 CICDVersion: 2
 
-environment_type: dev_test
+environment_type: dev
 
 
 apache_dir: /etc/httpd
