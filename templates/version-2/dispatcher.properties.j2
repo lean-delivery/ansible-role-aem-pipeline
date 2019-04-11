@@ -7,7 +7,7 @@ dispatcher.apache.document.root={{ dispatcher_root }}
 
 # common dispatcher configs
 dispatcher.document.root={{ dispatcher_root }}
-dispatcher.render.host={% if hostvars[disp_item]['render'] is defined %}{{ hostvars[disp_item]['render'].split(',')[0] }}{% else %}{{ disp_item }}{% endif %}
+dispatcher.render.host=render_host
 
 # publish dispatcher configs
-dispatcher.render.port={% if hostvars[disp_item]['render'] is defined %}{{ hostvars[hostvars[disp_item]['render'].split(',')[0]]['aem_instance_port'] }}{% else %}{{ aem_instance_port }}{% endif %}
+dispatcher.render.port=aem_instance_port

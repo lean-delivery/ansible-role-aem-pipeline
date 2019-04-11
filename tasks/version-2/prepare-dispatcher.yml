@@ -64,8 +64,8 @@ rate/{{ project_name_config }}/{{ project_name_config }}.dispatcher/src/environm
     dest: '{{ temp_template_link }}/{{ disp_item }}.properties'
     owner: '{{ jenkins_user }}'
   with_items:
-    - '{{ disp_author_array }}'
-    - '{{ disp_publish_array }}'
+    - 'disp_authors'
+    - 'disp_publishers'
   loop_control:
     loop_var: disp_item
   become: True

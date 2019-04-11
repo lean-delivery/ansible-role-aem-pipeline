@@ -22,14 +22,7 @@ node {
     ]
 
     def dispatcherTargetPath = 'target/classes'
-    def dispatcherList = [
-    	{% for disp_item in envAuthorDispatchers %}
-    	[ type: 'author', name: '{{ disp_item }}' ],
-  		{% endfor %}
-  		{% for disp_item in envPublishDispatchers %}
-    	[ type: 'publish', name: '{{ disp_item }}' ]{% if not loop.last %},{% endif %}
-    	{% endfor %}
-    ]
+    def dispatcherList = [ [ type: 'author', name: 'disp_authors' ], [ type: 'publish', name: 'disp_publishers' ] ]
 
 	dir(project_name) {
 		
