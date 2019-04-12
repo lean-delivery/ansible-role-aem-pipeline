@@ -69,7 +69,7 @@
         value: '{{ tokenCreatingMessage.json.token }}'
       become: True
 
-    when: "{{ userdict['json']['users']|length == 0 }}"
+    when: userdict['json']['users']|length == 0
   when: "not jenkins_done.stat.exists  and inventory_hostname != 'localhost'"
 
 - name: take raw jenkins token on Sonarqube
