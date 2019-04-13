@@ -100,7 +100,7 @@ node {
 
    for (deploymentItem in aemDeploymentList) {
        ansibleTower(
-            towerServer: 'aem-tower.epm-ldi.projects.epam.com',
+            towerServer: 'aem-tower',
             templateType: 'job',
             jobTemplate: 'deploy-aem-package',
             importTowerLogs: true,
@@ -128,7 +128,7 @@ node {
 
 
        ansibleTower(
-            towerServer: 'aem-tower.epm-ldi.projects.epam.com',
+            towerServer: 'aem-tower',
             templateType: 'job',
             jobTemplate: 'deploy-dispatcher-configuration',
             importTowerLogs: true,
