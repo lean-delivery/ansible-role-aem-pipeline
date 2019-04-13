@@ -131,7 +131,7 @@ node {
             templateType: 'job',
             jobTemplate: 'deploy-dispatcher-configuration',
             importTowerLogs: true,
-            inventory: "{{'${'}}{{ project_name_config }}_environment{{'}'}}",
+            inventory: "{{ '${' }}{{ project_name_config }}_environment{{ '}' }}",
             jobTags: '',
             skipJobTags: '',
             limit: '',
