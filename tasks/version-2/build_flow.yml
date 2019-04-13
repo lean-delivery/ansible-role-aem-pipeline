@@ -36,8 +36,9 @@ mplate={{ job_version_template_link }}/jobs/Project_Generate"
 #  - name: Display all variables/facts known for a host
 #    debug:
 #      var: '{{ ci_aem_author }}'
-#  - name: find out all required dispatchers and create related profiles
-#    include: '{{ tasks_version_path }}/prepare-dispatcher.yml'
+
+  - name:  dispatchers related profiles
+    include: '{{ tasks_version_path }}/prepare-dispatcher.yml'
 
   - name: 'check Jenkinsfile for {{ project_name }} Project'
     template:
