@@ -113,7 +113,7 @@ node {
             credential: '',
              extraVars: """---
                  s3_object: ${gitBranch}/${buildNumber}/{{ project_name_config }}-${deploymentItem}/{{ project_name_config }}-${deploymentItem}-2.2-SNAPSHOT.zip
-                 
+                 bucket: {{ project_name_config }}
                  """
         )
 
@@ -139,7 +139,7 @@ node {
             verbose: true,
             credential: '',
              extraVars: """---
-
+                 bucket: {{ project_name_config }}
                  s3_object: ${gitBranch}/${buildNumber}/{{ project_name_config }}-dispatcher/{{ project_name_config }}-dispatcher.zip
 
                  """
