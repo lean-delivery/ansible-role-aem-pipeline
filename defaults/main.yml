@@ -95,4 +95,5 @@ environment_type: dev
 
 apache_dir: /etc/httpd
 
+ci_aem_author: {{ groups['aem_authors'][0] }}
 aem_instance_port: 4502
