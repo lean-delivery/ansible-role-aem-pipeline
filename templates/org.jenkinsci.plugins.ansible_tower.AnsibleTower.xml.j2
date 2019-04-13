@@ -1,0 +1,12 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<org.jenkinsci.plugins.ansible__tower.AnsibleTowerGlobalConfig plugin="ansible-tower@0.9.1">
+  <towerInstallations>
+    <org.jenkinsci.plugins.ansible__tower.util.TowerInstallation>
+      <towerDisplayName>aem-tower</towerDisplayName>
+      <towerURL>{{ tower_server_url }}</towerURL>
+      <towerCredentialsId>ansible_awx</towerCredentialsId>
+      <towerTrustCert>true</towerTrustCert>
+      <enableDebugging>true</enableDebugging>
+    </org.jenkinsci.plugins.ansible__tower.util.TowerInstallation>
+  </towerInstallations>
+</org.jenkinsci.plugins.ansible__tower.AnsibleTowerGlobalConfig>

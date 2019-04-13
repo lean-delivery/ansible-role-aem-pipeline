@@ -1,0 +1,15 @@
+---
+
+- name: check tower main configuration
+  template:
+    src: org.jenkinsci.plugins.ansible_tower.AnsibleTower.xml.j2
+    dest: '{{ jenkins_home }}/org.jenkinsci.plugins.ansible_tower.AnsibleTower.xml'
+    owner: '{{ jenkins_user }}'
+    group: '{{ jenkins_user }}'
+  become: True
+  when: "inventory_hostname != 'localhost'"
+  notify:
+    - restart jenkins with token
+    - load jenkins with token
+- meta: flush_handlers
+
