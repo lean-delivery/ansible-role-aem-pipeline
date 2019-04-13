@@ -13,5 +13,8 @@
 - name: make sonar tasks
   include: sonar-install.yml
 
+- name: make tower/awx modue install
+  include: tower-install.yml
+
 - name: include specified CICD version
   include: '{{ tasks_version_path }}/main.yml'
