@@ -23,6 +23,8 @@
       - ssh-agent
       - sonar
       - jacoco
+      - ansicolor
+      - ansible-tower
 
 - name: make this list unique
   set_fact:

@@ -26,6 +26,7 @@ env_types_list:
   - uat
   - prod
 
+tower_server_url: https://aem-tower.epm-ldi.projects.epam.com
 
 sonar_server_address: "{{ groups['sonar_servers'][0] }}"
 sonarPort: 9000
