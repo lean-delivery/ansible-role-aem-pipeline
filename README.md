@@ -42,24 +42,24 @@ env_types_list:
   
 Tower server configuration
 
--`tower_server_url`: https://aem-tower.epm-ldi.projects.epam.com
+-`tower_server_url`: https://aem-tower.ldi.projects.com
 
 Sonar server configuration
 
--`sonar_server_address`: "localhost"
--`sonarPort`: 9000
--`sonar_admin_login`: admin
--`sonar_admin_password`: admin
+- `sonar_server_address`: "localhost"
+- `sonarPort`: 9000
+- `sonar_admin_login`: admin
+- `sonar_admin_password`: admin
 
 Maven options:
 
--`maven_major_version`: 3
--`maven_minor_version`: 6.0
--`maven_home`: /opt/maven
--`maven_link`: "http://ftp.byfly.by/pub/apache.org/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz"
--`maven_package_name`: apache-maven-3.6.0-bin.tar.gz
--`mavenVersion`: '{{ maven_major_version }}.{{ maven_minor_version }}'
--`maven_bin_file`: '{{ maven_home }}/apache-maven-{{ maven_major_version }}.{{ maven_minor_version }}/bin/mvn'
+- `maven_major_version`: 3
+- `maven_minor_version`: 6.0
+- `maven_home`: /opt/maven
+- `maven_link`: "http://ftp.byfly.by/pub/apache.org/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz"
+- `maven_package_name`: apache-maven-3.6.0-bin.tar.gz
+- `mavenVersion`: '{{ maven_major_version }}.{{ maven_minor_version }}'
+- `maven_bin_file`: '{{ maven_home }}/apache-maven-{{ maven_major_version }}.{{ maven_minor_version }}/bin/mvn'
 
 Jenkins configuratin:
 
@@ -67,35 +67,35 @@ Jenkins configuratin:
 jenkins_plugin_list:
   - ansible
 ```
--`jenkins_file`: /opt/jenkins.done
+- `jenkins_file`: /opt/jenkins.done
 ```yml
 jenkins_package_list:
   - zip
 ```  
--`jenkins_pip_modules`: ansible
--`jenkins_home`: /var/lib/jenkins
--`jenkins_port`: 8080
--`jenkins_base_link`: 'http://localhost:{{ jenkins_port }}'
--`jenkins_user`: jenkins
+- `jenkins_pip_modules`: ansible
+- `jenkins_home`: /var/lib/jenkins
+- `jenkins_port`: 8080
+- `jenkins_base_link`: 'http://localhost:{{ jenkins_port }}'
+- `jenkins_user`: jenkins
 ```yml
 jenkinsAdmin:
   name: jenkins_admin
   password: jenkins_admin
 ```
--`jenkins_admin_token`: ""
--`jenkins_admin_login`: '{{ jenkinsAdmin.name }}'
+- `jenkins_admin_token`: ""
+- `jenkins_admin_login`: '{{ jenkinsAdmin.name }}'
 ```yml
 myJenkinsAttributes:
   url: '{{ jenkins_base_link }}'
   url_username: '{{ jenkinsAdmin.name }}'
   url_password: '{{ jenkinsAdmin.password }}'
 ```
--`jenkinsLoadLink`: '{{ jenkins_base_link }}/login?from=%2F'
--`jenkins_plugin_listLink`: '{{ jenkins_base_link }}/pluginManager/api/xml?depth=1&xpath=/*/*/shortName|/*/*/version&wrapper=plugins'
--`jenkinsPluginInstallLink`: '{{ jenkins_base_link }}/pluginManager/installNecessaryPlugins'
--`jenkinsUpdateCLink`: '{{ jenkins_base_link }}/updateCenter/'
--`jenkinsScriptLink`: '{{ jenkins_base_link }}/script'
--`jenkins_restart_link`: '{{ jenkins_base_link }}/safeRestart'
+- `jenkinsLoadLink`: '{{ jenkins_base_link }}/login?from=%2F'
+- `jenkins_plugin_listLink`: '{{ jenkins_base_link }}/pluginManager/api/xml?depth=1&xpath=/*/*/shortName|/*/*/version&wrapper=plugins'
+- `jenkinsPluginInstallLink`: '{{ jenkins_base_link }}/pluginManager/installNecessaryPlugins'
+- `jenkinsUpdateCLink`: '{{ jenkins_base_link }}/updateCenter/'
+- `jenkinsScriptLink`: '{{ jenkins_base_link }}/script'
+- `jenkins_restart_link`: '{{ jenkins_base_link }}/safeRestart'
 ```yml  
 build_flows:
  - 
@@ -107,10 +107,10 @@ build_flows:
       branch: test
       environment: dev,qa
 ```
--`CICDVersion`: 2
--`apache_dir`: /etc/httpd
--`ci_aem_author`: "localhost"
--`aem_instance_port`: 4502
+- `CICDVersion`: 2
+- `apache_dir`: /etc/httpd
+- `ci_aem_author`: "localhost"
+- `aem_instance_port`: 4502
 
 
 Dependencies
