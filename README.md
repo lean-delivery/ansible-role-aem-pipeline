@@ -19,20 +19,30 @@ Nodes:
 - AEM author
 - AEM publisher 
 - AEM dispatcher
-
+- LDI AEM modules https://github.com/lean-delivery/ansible-modules-aem
 
 Role Variables : default
 --------------
 
 Ci/cd variables:
 
+Git user for ci/cd generation
+
 - `git_username`: "User_name"
 - `git_email`: "git@email.com"
+
+AEM maven archetype:
+
 - `archetypeGitRepository`: 'git@git.epam.com:epm-aem/maven-archetype-2.git'
 - `archetypeGitBranch`: master
+
+for dispatcher archetype template configuration
 - `dispatcher_root`: /opt/aemDispatcherCache
 - `distr_storage`: /tmp
+- `apache_dir`: /etc/httpd
 
+envirenment list for ci/cd generation:
+ 
 ```yml
 env_types_list:
   - dev
@@ -40,6 +50,10 @@ env_types_list:
   - uat
   - prod
 ```
+
+List of CI/CD projects ,  names options to create  during pipelines geeration.
+gitRepository - empty  repository to create project with sample data and ci/cd.
+autoDeployOn - list of environments and branches for autodeploy configuration
 
 ```yml
 build_flows:
@@ -52,12 +66,12 @@ build_flows:
       branch: test
       environment: dev,qa
 ```
-
-- `apache_dir`: /etc/httpd
+Standalone aem author server for test package deployment during build process
 - `ci_aem_author`: "localhost"
 - `aem_instance_port`: 4502
 
-Tower server configuration
+
+ansible AWX/Tower server address
 
 -`tower_server_url`: https://aem-tower.ldi.projects.com
 
