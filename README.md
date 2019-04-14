@@ -23,6 +23,7 @@ Nodes:
 
 Role Variables : default
 --------------
+
 Ci/cd variables:
 
 - `git_username`: "User_name"
@@ -49,6 +50,7 @@ build_flows:
       branch: test
       environment: dev,qa
 ```
+
 - `apache_dir`: /etc/httpd
 - `ci_aem_author`: "localhost"
 - `aem_instance_port`: 4502
@@ -96,14 +98,16 @@ jenkinsAdmin:
   name: jenkins_admin
   password: jenkins_admin
 ```
+
 - `jenkins_admin_token`: ""
 - `jenkins_admin_login`: '{{ jenkinsAdmin.name }}'
+
 ```yml
 myJenkinsAttributes:
   url: '{{ jenkins_base_link }}'
   url_username: '{{ jenkinsAdmin.name }}'
   url_password: '{{ jenkinsAdmin.password }}'
-
+```
 
 Dependencies
 ------------
