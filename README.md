@@ -24,13 +24,15 @@ Nodes:
 Role Variables : default
 --------------
 Ci/cd variables:
-- `git_username`: "User_name"
+
+-`git_username`: "User_name"
 -`git_email`: "git@email.com"
 -`archetypeGitRepository`: 'git@git.epam.com:epm-aem/maven-archetype-2.git'
 -`archetypeGitBranch`: master
 -`dispatcher_root`: /opt/aemDispatcherCache
 distr_storage`: /tmp
 ```yml
+
 env_types_list:
   - dev
   - test
@@ -39,18 +41,19 @@ env_types_list:
 ```
   
 Tower server configuration
+
 -`tower_server_url`: https://aem-tower.epm-ldi.projects.epam.com
 
 Sonar server configuration
+
 -`sonar_server_address`: "localhost"
 -`sonarPort`: 9000
 -`sonar_admin_login`: admin
 -`sonar_admin_password`: admin
 
 Maven options:
-# Maven Major Version
+
 -`maven_major_version`: 3
-# Maven Minor Version
 -`maven_minor_version`: 6.0
 -`maven_home`: /opt/maven
 -`maven_link`: "http://ftp.byfly.by/pub/apache.org/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz"
