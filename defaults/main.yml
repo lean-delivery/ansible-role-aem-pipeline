@@ -16,7 +16,7 @@ archetypeGitBranch: master
 
 dispatcher_root: /opt/aemDispatcherCache
 
-nexusServerAddress: "{{ groups['nexus_servers'][0] }}"
+nexusServerAddress: "localhost"
 nexusMajorVersion: 3
 nexusPort: 8081
 
@@ -28,7 +28,7 @@ env_types_list:
 
 tower_server_url: https://aem-tower.epm-ldi.projects.epam.com
 
-sonar_server_address: "{{ groups['sonar_servers'][0] }}"
+sonar_server_address: "localhost"
 sonarPort: 9000
 
 # Maven Major Version
@@ -95,5 +95,5 @@ environment_type: dev
 
 apache_dir: /etc/httpd
 
-ci_aem_author: "{{ groups['aem_authors'][0] }}"
+ci_aem_author: "localhost"
 aem_instance_port: 4502
