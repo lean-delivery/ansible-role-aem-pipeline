@@ -25,12 +25,12 @@ Role Variables : default
 --------------
 Ci/cd variables:
 
--`git_username`: "User_name"
--`git_email`: "git@email.com"
--`archetypeGitRepository`: 'git@git.epam.com:epm-aem/maven-archetype-2.git'
--`archetypeGitBranch`: master
--`dispatcher_root`: /opt/aemDispatcherCache
-distr_storage`: /tmp
+- `git_username`: "User_name"
+- `git_email`: "git@email.com"
+- `archetypeGitRepository`: 'git@git.epam.com:epm-aem/maven-archetype-2.git'
+- `archetypeGitBranch`: master
+- `dispatcher_root`: /opt/aemDispatcherCache
+- `distr_storage`: /tmp
 ```yml
 
 env_types_list:
@@ -111,6 +111,52 @@ build_flows:
 -`apache_dir`: /etc/httpd
 -`ci_aem_author`: "localhost"
 -`aem_instance_port`: 4502
+
+
+Dependencies
+------------
+
+A list of other roles hosted on Galaxy should go here, plus any details in
+regards to parameters that may need to be set for other roles, or variables that
+are used from other roles.
+
+```yml
+---
+- name: "jenkinf ci/cd"
+  hosts: jenkins
+  roles:
+    - role: ansible-role-aem-pipeline
+      jenkins_base_link: 'http://{{ inventory_hostname }}:{{ jenkins_port }}'
+      aem_version: '6.4'
+      aem_instance_port: 4502
+      sonar_server_address: "{{ groups['sonar_servers'][0] }}"
+      sonarPort: 80
+      git_username: "VPupkin"
+      git_email: "pupkin@mail.com"
+      tower_server_url: https://aem-tower.ldi.projects.com
+      archetypeGitRepository: 'git@git.epam.com:VPupkin/maven-archetype-2.git'
+      minio_server_address: http://{{ groups['artifact_storage'][0] }}
+      minio_port: 9000
+      env_types_list:
+        - dev
+        - test
+        - uat
+        - prod
+      ci_aem_author: "{{ groups['aem_authors'][0] }}"
+      sonarJenkinsUser:
+        id: 'test_user'
+        name: 'Test'
+
+      build_flows:
+        - project_name: "petproj1"
+          gitRepository: 'git@git.com:VPupkin/aem-cicd-test-fin2.git'
+          integrationEnv: 'dev'
+          autoDeployOn:
+            - branch: develop
+              environment: dev
+
+
+```
 
 
 Dependencies
