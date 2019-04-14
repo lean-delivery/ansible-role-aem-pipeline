@@ -26,17 +26,6 @@
     include: "{{ tasks_version_path }}/subtasks/create-and-run-job.yml generate_job={{ project_name }}_Generate job_te\
 mplate={{ job_version_template_link }}/jobs/Project_Generate"
 
-#  - name: 'find CI AEM Author instance in {{ buildFlowName.integrationEnv }}'
-#    set_fact:
-#      ci_aem_author: '{{ aem_item }}'
-#    when: "buildFlowName.integrationEnv == environment_type"
-#    with_items: "{{ groups['aem_authors'] }}"
-#    loop_control:
-#      loop_var: aem_item
-#  - name: Display all variables/facts known for a host
-#    debug:
-#      var: '{{ ci_aem_author }}'
-
   - name:  dispatchers related profiles
     include: '{{ tasks_version_path }}/prepare-dispatcher.yml'
 
