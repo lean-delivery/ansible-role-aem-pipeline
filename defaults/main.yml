@@ -16,10 +16,6 @@ archetypeGitBranch: master
 
 dispatcher_root: /opt/aemDispatcherCache
 
-nexusServerAddress: "localhost"
-nexusMajorVersion: 3
-nexusPort: 8081
-
 env_types_list:
   - dev
   - test

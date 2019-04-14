@@ -15,7 +15,6 @@
       - blueocean
       - gitlab-plugin
       - build-blocker-plugin
-      - nexus-artifact-uploader
       - job-restrictions
       - http_request
       - pipeline-utility-steps
