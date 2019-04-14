@@ -32,14 +32,16 @@ Ci/cd variables:
 - `archetypeGitBranch`: master
 - `dispatcher_root`: /opt/aemDispatcherCache
 - `distr_storage`: /tmp
-```yml
 
+```yml
 env_types_list:
   - dev
   - test
   - uat
   - prod
 ```
+
+```yml
 build_flows:
  -
    project_name: "test"
