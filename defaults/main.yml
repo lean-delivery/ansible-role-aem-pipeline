@@ -64,7 +64,7 @@ build_flows:
  - 
    project_name: "test"
    gitRepository: ''
-   integrationEnv: 'dev_test'
+   integrationEnv: 'dev'
    autoDeployOn:
     -
       branch: test
