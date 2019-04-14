@@ -39,7 +39,20 @@ env_types_list:
   - uat
   - prod
 ```
-  
+build_flows:
+ -
+   project_name: "test"
+   gitRepository: ''
+   integrationEnv: 'dev'
+   autoDeployOn:
+    -
+      branch: test
+      environment: dev,qa
+```
+- `apache_dir`: /etc/httpd
+- `ci_aem_author`: "localhost"
+- `aem_instance_port`: 4502
+
 Tower server configuration
 
 -`tower_server_url`: https://aem-tower.ldi.projects.com
@@ -75,7 +88,7 @@ jenkins_package_list:
 - `jenkins_port`: 8080
 - `jenkins_base_link`: 'http://localhost:{{ jenkins_port }}'
 
-lenkins files owner user
+Jenkins files owner user
 - `jenkins_user`: jenkins
 
 ```yml
@@ -90,21 +103,6 @@ myJenkinsAttributes:
   url: '{{ jenkins_base_link }}'
   url_username: '{{ jenkinsAdmin.name }}'
   url_password: '{{ jenkinsAdmin.password }}'
-build_flows:
- - 
-   project_name: "test"
-   gitRepository: ''
-   integrationEnv: 'dev'
-   autoDeployOn:
-    -
-      branch: test
-      environment: dev,qa
-```
-- `CICDVersion`: 2
-- `apache_dir`: /etc/httpd
-- `ci_aem_author`: "localhost"
-- `aem_instance_port`: 4502
-
 
 
 Dependencies
