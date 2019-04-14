@@ -52,8 +52,8 @@ env_types_list:
 ```
 
 List of CI/CD projects ,  names options to create  during pipelines geeration.
-gitRepository - empty  repository to create project with sample data and ci/cd.
-autoDeployOn - list of environments and branches for autodeploy configuration
+- gitRepository - empty  repository to create project with sample data and ci/cd.
+- autoDeployOn - list of environments and branches for autodeploy configuration
 
 ```yml
 build_flows:
