@@ -2,11 +2,24 @@
 galaxy_info:
   role_name: aem_pipeline
   author: Lean Delivery Team <team@lean-delivery.com>
-  description: Yet Another Ansible Role From Lean Delivery
+  description: Playbook for  Jenkins CI/CD pipeline installation
   company: EPAM Systems
   issue_tracker_url: https://github.com/lean-delivery/ansible-role-aem-pipeline/issues
   license: Apache
   min_ansible_version: 2.5
-  platforms: [{name: [EL], versions: [7]}]
-  galaxy_tags: [development, system]
+  platforms:
+    - name: "Ubuntu"
+      versions:
+        - "bionic"
+    - name: "EL"
+      versions:
+        - "7"
+
+  galaxy_tags:
+    - "development"
+    - "system"
+    - "aem"
+    - "author"
+    - "publisher"
+    - "pipeline"
 dependencies: []
