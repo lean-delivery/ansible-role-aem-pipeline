@@ -1,7 +1,5 @@
 ---
 # file: tasks/set_facts.yml
-
-
 - name: initialize all required variables
   set_fact:
     tasks_base_path: '{{ role_path }}/tasks'
@@ -12,4 +10,3 @@
     job_version_template_link: '{{ role_path }}/templates/version-{{ CICDVersion }}'
     jobCommonTemplateLink: '{{ role_path }}/templates'
     sonar_base_link: "http://{{ sonar_server_address }}:{{ sonarPort }}"
-

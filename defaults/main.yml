@@ -57,7 +57,7 @@ jenkinsAdmin:
   password: jenkins_admin
 
 build_flows:
- - 
+ -
    project_name: "test"
    gitRepository: ''
    integrationEnv: 'dev'
