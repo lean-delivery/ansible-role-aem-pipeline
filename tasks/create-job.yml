@@ -4,7 +4,7 @@
 - name: 'Check if {{ job_name }} job presents'
   uri:
     url: '{{ job_check_link }}/{{ job_name }}'
-    force_basic_auth: yes
+    force_basic_auth: True
     user: '{{ jenkins_admin_login }}'
     password: '{{ jenkins_admin_token }}'
     status_code: 200, 404
@@ -16,7 +16,7 @@
     method: POST
     headers:
       Content-Type: "text/xml"
-    force_basic_auth: yes
+    force_basic_auth: True
     user: '{{ jenkins_admin_login }}'
     password: '{{ jenkins_admin_token }}'
     body: "{{ lookup('template', '{{ job_template }}.xml.j2') }}"
@@ -27,7 +27,7 @@
   uri:
     url: '{{ job_check_link }}/{{ job_name }}/config.xml'
     method: POST
-    force_basic_auth: yes
+    force_basic_auth: True
     user: '{{ jenkins_admin_login }}'
     password: '{{ jenkins_admin_token }}'
     body: "{{ lookup('template', '{{ job_template }}.xml.j2') }}"
