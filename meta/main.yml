@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: aem_pipeline
   author: Lean Delivery Team <team@lean-delivery.com>
-  description: Playbook for  Jenkins CI/CD pipeline installation
+  description: Playbook for  Jenkins CI/CD Adobe AEM pipeline installation
   company: EPAM Systems
   issue_tracker_url: https://github.com/lean-delivery/ansible-role-aem-pipeline/issues
   license: Apache
