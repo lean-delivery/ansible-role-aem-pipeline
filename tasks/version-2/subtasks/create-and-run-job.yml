@@ -8,7 +8,7 @@
   uri:
     url: '{{ job_check_link }}/{{ generate_job }}/build'
     method: POST
-    force_basic_auth: yes
+    force_basic_auth: True
     follow_redirects: all
     user: '{{ jenkins_admin_login }}'
     password: '{{ jenkins_admin_token }}'
@@ -17,21 +17,21 @@
 - name: 'wait until {{ generate_job }} job in progress'
   uri:
     url: '{{ job_check_link }}/{{ generate_job }}/api/json'
-    force_basic_auth: yes
+    force_basic_auth: True
     user: '{{ jenkins_admin_login }}'
     password: '{{ jenkins_admin_token }}'
-    return_content: yes
+    return_content: True
   register: jenkinsJobStatus
   until: jenkinsJobStatus.json.lastSuccessfulBuild.number is defined
   retries: 100
   delay: 2
-  ignore_errors: yes
+  ignore_errors: True
 
 - name: check {{ generate_job }} job result'
   uri:
     url: '{{ job_check_link }}/{{ generate_job }}/api/json'
-    force_basic_auth: yes
+    force_basic_auth: True
     user: '{{ jenkins_admin_login }}'
     password: '{{ jenkins_admin_token }}'
-    return_content: yes
+    return_content: True
   register: jenkinsJobStatus
