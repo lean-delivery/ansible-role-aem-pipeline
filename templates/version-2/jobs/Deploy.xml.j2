@@ -151,7 +151,7 @@ node {
 
 def takeJobInfo(jobName) {
     dir(&apos;temp&apos;) {
-        httpRequest acceptType: &apos;APPLICATION_JSON&apos;, outputFile: &apos;job_file.json&apos;, contentType: &apos;APPLICATION_JSON&apos;, url: &quot;${jobName}api/json&quot;
+        httpRequest acceptType: &apos;APPLICATION_JSON&apos;, outputFile: &apos;job_file.json&apos;, contentType: &apos;APPLICATION_JSON&apos;, url: &quot;{{ jenkins_base_link }}/job/${jobName}api/json&quot;
         def jobInfo = jsonParse(readFile(&quot;job_file.json&quot;))
         deleteDir()
         return jobInfo
