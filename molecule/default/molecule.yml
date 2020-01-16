@@ -10,25 +10,68 @@ lint:
   options:
     config-file: .yamllint
 platforms:
-  - name: test-docker-centos7-aem-pipeline
+  - name: aem-pipeline-jenkins
+    image: leandelivery/docker-systemd:centos7
+    privileged: True
+    exposed_ports:
+      - 8080/tcp
+    published_ports:
+      - 0.0.0.0:18080:8080/tcp
+    groups:
+      - rhel_family
+      - jenkins
+
+  - name: aem-pipeline-sonarqube
+    image: leandelivery/docker-systemd:centos7
+    privileged: True
+    exposed_ports:
+      - 9000/tcp
+    published_ports:
+      - 0.0.0.0:19000:9000/tcp
+    groups:
+      - rhel_family
+      - sonarqube
+
+  - name: aem-pipeline-minio
+    image: leandelivery/docker-systemd:centos7
+    privileged: True
+    exposed_ports:
+      - 9000/tcp
+    published_ports:
+      - 0.0.0.0:29000:9000/tcp
+    groups:
+      - rhel_family
+      - minio
+
+  - name: aem-pipeline-dispatcher
+    image: leandelivery/docker-systemd:centos7
+    privileged: True
+    exposed_ports:
+      - 80/tcp
+      - 443/tcp
+    published_ports:
+      - 0.0.0.0:1080:80/tcp
+      - 0.0.0.0:1443:443/tcp
+    groups:
+      - rhel_family
+      - dispatcher
+
+  - name: aem-pipeline-publisher
     image: leandelivery/docker-systemd:centos7
     privileged: True
     groups:
       - rhel_family
-  - name: test-docker-ubuntu1804-aem-pipeline
-    image: leandelivery/docker-systemd:ubuntu-18.04
+      - publisher
+      - aem_node
+
+  - name: aem-pipeline-author
+    image: leandelivery/docker-systemd:centos7
     privileged: True
-    security_opts:
-      - seccomp=unconfined
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    tmpfs:
-      - /tmp
-      - /run
-    capabilities:
-      - SYS_ADMIN
     groups:
-      - debian_family
+      - rhel_family
+      - author
+      - aem_node
+
 provisioner:
   name: ansible
   # log: True
