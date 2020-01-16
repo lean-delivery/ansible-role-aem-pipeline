@@ -1,4 +1,292 @@
 ---
+- name: Install Jenkins
+  hosts: jenkins
+  vars:
+    aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
+    aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
+  roles:
+    - role: lean_delivery.java
+      java_distribution: oracle_java
+      java_package: jdk
+      transport: web
+      transport_web: "{{ lookup('env','STORAGE_AWS') }}/oracle-java/jdk-8u231-linux-x64.tar.gz"
+      java_tarball_install: true
+    - role: lean_delivery.jenkins
+      jenkins2_credentials_enabled: True
+      jenkins2_sonarqube_enabled: True
+      minio_access_key:
+      minio_secret_key: fakekakekakefakefakefakefake
+      jenkins2_plugins_suggested:
+        - pipeline-aws
+        - blueocean
+        - build-timeout
+        - cloudbees-folder
+        - credentials-binding
+        - email-ext
+        - file-operations
+        - git
+        - gradle
+        - greenballs
+        - mailer
+        - matrix-auth
+        - pam-auth
+        - pipeline-stage-view
+        - pipeline-utility-steps
+        - role-strategy
+        - ssh-agent
+        - ssh-slaves
+        - timestamper
+        - workflow-aggregator
+        - ws-cleanup
+        - job-dsl
+        - sonar
+        - checkstyle
+        - gitlab-plugin
+        - log-parser
+        - pmd
+        - ec2
+        - warnings-ng
+        - active-directory
+        - ansicolor
+        - ansible-tower
+      jenkins2_plugins_list: []
+      jenkins2_credentials:
+        aws_credentials:
+          type: 'password'
+          id: 'MINIO_CREDENTIALS'
+          description: 'for uploading artifacts to Minio'
+          username: "{{ aws_access_key }}"
+          password: "{{ aws_secret_key }}"
+        sshconnection:
+          type: 'key'
+          keySource: 0
+          key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+            -----END RSA PRIVATE KEY-----
+          id: 'git-credentials'
+          username: 'git'
+          passphrase: ''
+          description: 'credentials for (epm-ldi/ldi-aem-pipeline) AEM demo stand pipeline'
+        aemadminuser:
+          type: 'password'
+          id: 'jenkins-on-aem'
+          description: 'jenkins-on-aem'
+          username: 'admin'
+          password: 'testtest_123i@S'
+        ansible_awx:
+          type: 'password'
+          id: 'ansible_awx'
+          description: 'ansible_awx'
+          username: 'admin'
+          password: 'password'
+
+- name: "Install SonarQube"
+  hosts: sonarqube
+  become: True
+  pre_tasks:
+    - name: "install epel"
+      package:
+        name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+        state: "present"
+      when: ansible_distribution == 'RedHat'
+    # delete plugins installed on previous run to prevent conflict in case if any plugin is updated
+    - name: "delete plugins"
+      file:
+        path: "{{ sonar_path }}/sonarqube-{{ sonar_major_version }}.{{ sonar_minor_version }}/extensions/plugins"
+        state: absent
+  roles:
+    - role: lean_delivery.java
+      java_distribution: oracle_java
+      java_package: jdk
+      transport: web
+      transport_web: "{{ lookup('env','STORAGE_AWS') }}/oracle-java/jdk-11.0.3_linux-x64_bin.tar.gz"
+      java_tarball_install: true
+    - role: anxs.postgresql
+      postgresql_users:
+        - name: sonar
+          pass: sonar
+      postgresql_databases:
+        - name: sonar
+          owner: sonar
+    - role: nginxinc.nginx
+    - role: lean_delivery.sonarqube
+      sonar_major_version: 8
+      sonar_java_opts:
+        web: "-server -Xmx1g -Xms1g"
+        es: "-Xmx2g -Xms2g"
+        ce: "-Xmx1g -Xms1g"
+      web:
+        host: "localhost"
+        port: 9000
+        path: "/"
+        # database connection
+      sonar_db:
+        type: "postgresql"
+        port: 5432
+        host: "localhost"
+        name: "sonar"
+        user: "sonar"
+        password: "sonar"
+        options: ""
+      sonar_proxy_http: True
+      sonar_proxy_http_port: 80
+      sonar_proxy_ssl: False
+      sonar_proxy_ssl_port: 443
+      sonar_proxy_ssl_cert_path: "/etc/ssl/{{ sonar_proxy_server_name }}/{{ sonar_proxy_server_name }}.pem"
+      sonar_proxy_ssl_key_path: "/etc/ssl/{{ sonar_proxy_server_name }}/{{ sonar_proxy_server_name }}.key"
+      sonar_proxy_server_name: "{{ ansible_hostname }}"
+      sonar_optional_plugins:
+        - "https://binaries.sonarsource.com/Distribution/sonar-auth-github-plugin/\
+          sonar-auth-github-plugin-1.4.0.695.jar"
+        - "https://github.com/QualInsight/qualinsight-plugins-sonarqube-smell/releases/download/\
+          qualinsight-plugins-sonarqube-smell-4.0.0/qualinsight-sonarqube-smell-plugin-4.0.0.jar"
+        - "https://github.com/QualInsight/qualinsight-plugins-sonarqube-badges/releases/download/\
+          qualinsight-plugins-sonarqube-badges-3.0.1/qualinsight-sonarqube-badges-3.0.1.jar"
+        - "https://github.com/racodond/sonar-json-plugin/releases/download/2.3/\
+          sonar-json-plugin-2.3.jar"
+        - "https://github.com/SonarSource/sonar-auth-bitbucket/releases/download/1.0/\
+          sonar-auth-bitbucket-plugin-1.0.jar"
+        # you have to build this plugin manually after role is installed, use "mvn clean install" command
+        - "https://github.com/mibexsoftware/sonar-bitbucket-plugin/archive/\
+          v1.2.3.zip"
+        - "https://github.com/RIGS-IT/sonar-xanitizer/releases/download/1.5.0/\
+          sonar-xanitizer-plugin-1.5.0.jar"
+        - "https://github.com/gabrie-allaigre/sonar-gitlab-plugin/releases/download/3.0.1/\
+          sonar-gitlab-plugin-3.0.1.jar"
+        - "https://github.com/gabrie-allaigre/sonar-auth-gitlab-plugin/releases/download/1.3.2/\
+          sonar-auth-gitlab-plugin-1.3.2.jar"
+        - "https://binaries.sonarsource.com/Distribution/sonar-css-plugin/\
+          sonar-css-plugin-1.0.2.611.jar"
+        - "https://binaries.sonarsource.com/Distribution/sonar-kotlin-plugin/\
+          sonar-kotlin-plugin-1.2.1.2009.jar"
+  post_tasks:
+    - name: "start sonarqube"
+      service: name="sonarqube" state="started"
+    - name: "delete default nginx config"
+      file:
+        path: /etc/nginx/conf.d/default.conf
+        state: absent
+    - name: "restart, enable nginx"
+      service: name="nginx" state="restarted" enabled=True
+    # see https://github.com/ANXS/postgresql/issues/363
+    - name: "enable postgresql"
+      service: name="postgresql-{{ postgresql_version }}" enabled=True
+      when: ansible_distribution == 'CentOS'
+
+- name: Install Minio storage server
+  hosts: minio
+  roles:
+    - role: lean_delivery.minio
+  vars:
+    minio_access_key: EH3FJ946FA17VFAPAQVB
+    minio_secret_key: fakekakekakefakefakefakefake
+    minio_enable_ssl: False
+
+- name: Install author
+  hosts: author
+  roles:
+    - role: lean_delivery.java
+      java_distribution: oracle_java
+      java_package: jdk
+      transport: web
+      transport_web: "{{ lookup('env','STORAGE_AWS') }}/oracle-java/jdk-8u231-linux-x64.tar.gz"
+      java_tarball_install: true
+    - role: lean_delivery.aem_node
+      aem_instance_type: author
+      aem_change_default_admin_password: True
+      aem_new_admin_password: 'testtest_123i@S'
+      replication_enabled: True
+      ftp_server_link: "{{ lookup('env','STORAGE_AWS') }}/aem/"
+      publishers: "{{ groups['publisher'] }}"
+      dispatchers: "{{ groups['dispatcher'] }}"
+      aem_groups:
+       -
+        id: 'test_group'
+        name: 'Test'
+        description: 'All test users'
+        permissions:
+          - 'path:/,read:true'
+          - 'path:/etc/packages,read:true,modify:true,create:true,delete:false,replicate:true'
+        root_groups:
+          - 'everyone'
+      aem_users:
+       -
+        category: 'test'
+        id: 'test_user'
+        first_name: 'Test'
+        second_name: 'User'
+        password: 'testtest_123i@S'
+        group: 'test_group'
+
+ name: Install publisher
+ hosts: publisher
+ roles:
+   - role: lean_delivery.java
+     java_distribution: oracle_java
+     java_package: jdk
+     transport: web
+     transport_web: "{{ lookup('env','STORAGE_AWS') }}/oracle-java/jdk-8u231-linux-x64.tar.gz"
+     java_tarball_install: true
+   - role: lean_delivery.aem_node
+     aem_instance_type: publish
+     replication_enabled: True
+     aem_change_default_admin_password: True
+     aem_new_admin_password: 'testtest_123i@S'
+     ftp_server_link: "{{ lookup('env','STORAGE_AWS') }}/aem/"
+     dispatchers: "{{ groups['dispatcher'] }}"
+     aem_groups:
+      -
+       id: 'test_group'
+       name: 'Test'
+       description: 'All test users'
+       permissions:
+         - 'path:/,read:true'
+         - 'path:/etc/packages,read:true,modify:true,create:true,delete:false,replicate:true'
+       root_groups:
+         - 'everyone'
+     aem_users:
+      -
+       category: 'test'
+       id: 'test_user'
+       first_name: 'Test'
+       second_name: 'User'
+       password: 'testtest_123i@S'
+       group: 'test_group'
+
+- name: Install dispatcher
+  hosts: dispatcher
+  vars:
+    dispatcher_back: "{{ groups['aem_node'] }}"
+    ftp_link: "{{ lookup('env','STORAGE_AWS') }}/"
+  roles:
+    - role: lean_delivery.aem_dispatcher
+      dispatcher_log_level: warn
+
 - name: Converge
   hosts: all
   roles:
